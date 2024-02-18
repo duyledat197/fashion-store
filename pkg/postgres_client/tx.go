@@ -1,23 +1,29 @@
-package postgres_client
+package postgresclient
 
 import (
-	"context"
-	"database/sql"
+	"fmt"
+
+	"github.com/jackc/pgx/v5"
+	"golang.org/x/net/context"
 )
 
-// Transaction implements a passing function with parameter have pointer of sql.Tx.
-// The transaction begin with serializable isolation and then call passing function and then commit or rollback.
-func (c *PostgresClient) Transaction(ctx context.Context, fn func(ctx context.Context, db *sql.Tx) error) error {
-	tx, err := c.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable})
+// Transaction ...
+func (c *PostgresClient) Transaction(ctx context.Context, fn func(context.Context, pgx.Tx) error) error {
+	tx, err := c.BeginTx(ctx, pgx.TxOptions{
+		IsoLevel: pgx.Serializable,
+	})
 	if err != nil {
-		return err
+		return fmt.Errorf("unable to create transaction: %w", err)
 	}
-	defer tx.Rollback()
+	defer tx.Rollback(ctx)
+
 	if err := fn(ctx, tx); err != nil {
-		return err
+		return fmt.Errorf("unable to execute transaction: %w", err)
 	}
 
-	tx.Commit()
+	if err := tx.Commit(ctx); err != nil {
+		return fmt.Errorf("unable to commit transaction: %w", err)
+	}
 
 	return nil
 }

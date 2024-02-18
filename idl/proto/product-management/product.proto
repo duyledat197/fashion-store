@@ -1,0 +1,111 @@
+syntax = "proto3";
+
+package pb;
+option go_package = "product-management/product";
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "validate/validate.proto";
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/timestamp.proto";
+
+service ProductService {
+  rpc RetrieveProductByID(RetrieveProductByIDRequest)
+      returns (RetrieveProductByIDResponse) {
+    option (google.api.http) = {
+      get : "/v1/products/{id}"
+    };
+  }
+
+  rpc ListProduct(ListProductRequest) returns (ListProductResponse) {
+    option (google.api.http) = {
+      get : "/v1/products"
+    };
+  }
+
+  rpc CreateProduct(CreateProductRequest) returns (CreateProductResponse) {
+    option (google.api.http) = {
+      post : "/v1/products",
+      body : "*"
+    };
+  }
+
+  rpc UpdateProductByID(UpdateProductByIDRequest)
+      returns (UpdateProductByIDResponse) {
+    option (google.api.http) = {
+      put : "/v1/products/{id}",
+      body : "*"
+    };
+  }
+
+  rpc DeleteProductByID(DeleteProductByIDRequest)
+      returns (DeleteProductByIDResponse) {
+    option (google.api.http) = {
+      delete : "/v1/products/{id}"
+    };
+  }
+
+  rpc DeleteProductByIDs(DeleteProductByIDsRequest)
+      returns (DeleteProductByIDsResponse) {
+    option (google.api.http) = {
+      delete : "/v1/products"
+    };
+  }
+}
+//////////////////////////////////////////////
+
+// common
+message Product {
+  string name = 1;
+  string type = 2;
+  string image_url = 3;
+  string description = 4;
+}
+
+//////////////////////////////////////////////
+
+message RetrieveProductByIDRequest { int64 id = 1; }
+message RetrieveProductByIDResponse { Product data = 1; }
+
+//////////////////////////////////////////////
+
+message ListProductRequest {
+  int64 offset = 1;
+  int64 limit = 2;
+}
+message ListProductResponse {
+  repeated Product data = 1;
+  int64 total = 2;
+}
+
+//////////////////////////////////////////////
+
+message CreateProductRequest {
+  string name = 1;
+  string type = 2;
+  string image_url = 3 [ (validate.rules).string.uri_ref = true ];
+  string description = 4;
+}
+
+message CreateProductResponse { int64 id = 1; }
+
+//////////////////////////////////////////////
+
+message UpdateProductByIDRequest {
+  int64 id = 1;
+  string name = 2;
+  string type = 3;
+  string image_url = 4 [ (validate.rules).string.uri_ref = true ];
+  string description = 5;
+}
+message UpdateProductByIDResponse {}
+
+//////////////////////////////////////////////
+
+message DeleteProductByIDRequest { int64 id = 1; }
+message DeleteProductByIDResponse {}
+
+//////////////////////////////////////////////
+
+message DeleteProductByIDsRequest { repeated int64 ids = 1; }
+message DeleteProductByIDsResponse {}

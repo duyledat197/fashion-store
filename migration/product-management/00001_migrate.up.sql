@@ -1,12 +1,15 @@
 --  create product table
 CREATE TABLE IF NOT EXISTS products(
-  "id" bigint PRIMARY KEY,
+  "id" serial PRIMARY KEY,
+  "sku" text,
   "name" text,
   "type" text,
-  "image" jsonb,
+  "image_url" text,
   "description" text,
   "created_by" bigint,
   "created_at" timestamptz DEFAULT now(),
   "updated_at" timestamptz DEFAULT now()
 );
+
+CREATE INDEX IF NOT EXISTS products_sku_idx ON products(sku);
 

@@ -16,10 +16,11 @@ for folder in $PROTO_PATH/*; do
 		-I=/usr/local/include \
 		--proto_path=${folder} \
 		--go_out=:${PROTO_OUT} \
-		--validate_out=lang=go:${folder} \
+		--validate_out=lang=go:${PROTO_OUT} \
 		--go-grpc_out=:${PROTO_OUT} \
 		--grpc-gateway_out=:${PROTO_OUT} \
-		--openapiv2_out=:${doc_out}/swagger \
-		--custom_out=:${PROTO_OUT} \
-		--doc_out=:${doc_out}/html --doc_opt=html,index.html
+		--custom_out=:${PROTO_OUT}
+	# --openapiv2_out=:${doc_out}/swagger \
+	# --doc_out=:${doc_out}/html --doc_opt=html,index.html \
+
 done

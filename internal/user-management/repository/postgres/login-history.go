@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+
 	"trintech/review/internal/user-management/entity"
 	"trintech/review/pkg/database"
 )

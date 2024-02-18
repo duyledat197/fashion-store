@@ -10,11 +10,19 @@ services:
     volumes:
       - "../:/app/"
     entrypoint: /app/development/gen-proto.sh
+
+  generate_mock:
+    image: vektra/mockery
+    working_dir: /code
+    volumes:
+      - "../:/code:cached"
+    entrypoint: [ "/usr/local/bin/mockery", "--all" ]
+
   postgres:
     container_name: postgres_container
     image: postgres:13-alpine
     env_file:
-      - .env
+      - dev.env
     environment:
       PGDATA: /data/postgres
       POSTGRES_DB: ${DB_NAME}
@@ -23,34 +31,17 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - "5432:5432"
-    networks:
-      - postgres
     restart: unless-stopped
 
   migrate:
-    image: migrate/migrate
-    env_file:
-      - .env
+    image: golang:1.21.5
     volumes:
-      - "../migrations:/migrations/"
-    networks:
-      - postgres
-    command:
-      [
-        "-path",
-        "/migrations",
-        "-database",
-        "postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=disable",
-        "up"
-      ]
+      - "../migration:/app/migration"
+      - ".:/development"
+    entrypoint: /development/migrate.sh
 
   adminer:
     image: adminer
     restart: always
     ports:
       - 3037:8080
-    networks:
-      - postgres
-networks:
-  postgres:
-    driver: bridge

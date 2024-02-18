@@ -1,5 +1,5 @@
 
-FROM golang:1.19.1 AS protoc_gen_go
+FROM golang:1.21.5 AS protoc_gen_go
 
 RUN apt update && apt install -y --no-install-recommends curl make git unzip apt-utils
 ENV GO111MODULE=on

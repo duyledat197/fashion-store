@@ -3,11 +3,12 @@ package config
 import "fmt"
 
 type Database struct {
-	Host     string
-	Port     string
-	User     string
-	Password string
-	Database string
+	Host          string
+	Port          string
+	User          string
+	Password      string
+	Database      string
+	MaxConnection int32
 }
 
 func (e *Database) Address() string {

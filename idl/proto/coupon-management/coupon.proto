@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package pb;
+option go_package = "coupon-management/coupon";
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "validate/validate.proto";
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/timestamp.proto";
+
+service CouponService {
+  rpc CreateCoupon(CreateCouponRequest) returns (CreateCouponResponse) {
+    option (google.api.http) = {
+      post : "/v1/coupons",
+      body : "*"
+    };
+  }
+
+  rpc DeleteCouponByID(DeleteCouponByIDRequest)
+      returns (DeleteCouponByIDResponse) {
+    option (google.api.http) = {
+      delete : "/v1/coupons/{id}"
+    };
+  }
+}
+
+//////////////////////////////////////////////
+
+enum CouponType {
+  CouponType_NONE = 0;
+  CouponType_USER = 1;
+  CouponType_PRODUCT = 2;
+}
+
+//////////////////////////////////////////////
+message CreateCouponRequest {
+  CouponType type = 1 [ (validate.rules).enum.defined_only = true ];
+  oneof apply_id {
+    google.protobuf.Int64Value user_id = 2;
+    google.protobuf.Int64Value product_id = 3;
+  }
+  int64 amount = 4;
+  google.protobuf.Timestamp from = 5;
+  google.protobuf.Timestamp to = 6;
+  string image_url = 7 [ (validate.rules).string.uri_ref = true ];
+}
+
+message CreateCouponResponse { string id = 1; }
+
+//////////////////////////////////////////////
+
+message DeleteCouponByIDRequest { int64 id = 1; }
+
+message DeleteCouponByIDResponse {}

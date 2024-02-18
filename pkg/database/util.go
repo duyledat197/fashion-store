@@ -9,13 +9,13 @@ import (
 
 const DB_TAG = "db"
 
-// entity is a presentation of a entity that must have TableName function inside.
-type entity interface {
+// e is a presentation of a entity that must have TableName function inside.
+type Entity interface {
 	TableName() string
 }
 
 // FieldMap returns an list field names and a list pointer values of an entity.
-func FieldMap[T entity](e T) ([]string, []any) {
+func FieldMap[T Entity](e T) ([]string, []any) {
 	var fieldNames []string
 	var fieldValues []any
 	v := reflect.ValueOf(e).Elem()
@@ -42,7 +42,7 @@ func GetPlaceholders(num int) string {
 }
 
 // IsExistFieldInTable returns true if the field in params exists in entity.
-func IsExistFieldInTable[T entity](dt T, target string) bool {
+func IsExistFieldInTable[T Entity](dt T, target string) bool {
 	t := reflect.TypeOf(dt)
 	var fields []string
 	for i := 0; i < t.NumField(); i++ {
