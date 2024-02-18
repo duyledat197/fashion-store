@@ -1,0 +1,56 @@
+version: "3.4"
+
+services:
+  generate_pb_go:
+    image: gen-go
+    build:
+      context: ../
+      target: protoc_gen_go
+      dockerfile: ./development/proto.Dockerfile
+    volumes:
+      - "../:/app/"
+    entrypoint: /app/development/gen-proto.sh
+  postgres:
+    container_name: postgres_container
+    image: postgres:13-alpine
+    env_file:
+      - .env
+    environment:
+      PGDATA: /data/postgres
+      POSTGRES_DB: ${DB_NAME}
+      DATABASE_HOST: ${DB_HOST}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5432:5432"
+    networks:
+      - postgres
+    restart: unless-stopped
+
+  migrate:
+    image: migrate/migrate
+    env_file:
+      - .env
+    volumes:
+      - "../migrations:/migrations/"
+    networks:
+      - postgres
+    command:
+      [
+        "-path",
+        "/migrations",
+        "-database",
+        "postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=disable",
+        "up"
+      ]
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 3037:8080
+    networks:
+      - postgres
+networks:
+  postgres:
+    driver: bridge
