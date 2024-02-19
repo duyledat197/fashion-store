@@ -647,7 +647,17 @@ func (m *CreateProductRequest) validate(all bool) error {
 
 	// no validation rules for Type
 
-	// no validation rules for ImageUrl
+	if _, err := url.Parse(m.GetImageUrl()); err != nil {
+		err = CreateProductRequestValidationError{
+			field:  "ImageUrl",
+			reason: "value must be a valid URI",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	// no validation rules for Description
 
@@ -863,7 +873,17 @@ func (m *UpdateProductByIDRequest) validate(all bool) error {
 
 	// no validation rules for Type
 
-	// no validation rules for ImageUrl
+	if _, err := url.Parse(m.GetImageUrl()); err != nil {
+		err = UpdateProductByIDRequestValidationError{
+			field:  "ImageUrl",
+			reason: "value must be a valid URI",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	// no validation rules for Description
 

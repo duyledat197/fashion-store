@@ -1,4 +1,4 @@
-package postgresclient
+package pg_util
 
 import (
 	"time"
@@ -22,9 +22,9 @@ func PgTypeText(src string) pgtype.Text {
 	}
 }
 
-// PgTypeTimestamp ...
-func PgTypeTimestamp(src time.Time) pgtype.Timestamp {
-	return pgtype.Timestamp{
+// PgTypeTimestamptz ...
+func PgTypeTimestamptz(src time.Time) pgtype.Timestamptz {
+	return pgtype.Timestamptz{
 		Time:  src,
 		Valid: src.IsZero(),
 	}

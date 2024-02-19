@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package pb;
+option go_package = "storage-management/upload";
+
+import "google/api/annotations.proto";
+
+service UploadService {
+  rpc Upload(stream UploadRequest) returns (UploadResponse) {
+    option (google.api.http) = {
+      post : "/v1/files/upload"
+      body : "*"
+    };
+  };
+}
+
+//////////////////////////////////////////////
+
+message File {
+  string mime_type = 1;
+  int64 size = 2;
+  string id = 3;
+  string url = 4;
+};
+
+//////////////////////////////////////////////
+
+message UploadRequest {
+  message Info {
+    string filename = 1;
+    string mime_type = 2;
+  }
+
+  oneof data {
+    bytes chunk_data = 1;
+    Info info = 2;
+  }
+};
+
+message UploadResponse { File data = 1; }

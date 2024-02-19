@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS products(
   "sku" text,
   "name" text,
   "type" text,
-  "image_url" text,
+  "image_urls" text[],
   "description" text,
   "created_by" bigint,
   "created_at" timestamptz DEFAULT now(),

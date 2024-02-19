@@ -57,64 +57,15 @@ func (m *CreateCouponRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Type
-
-	if all {
-		switch v := interface{}(m.GetUserId()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, CreateCouponRequestValidationError{
-					field:  "UserId",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, CreateCouponRequestValidationError{
-					field:  "UserId",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
+	if _, ok := CouponType_name[int32(m.GetType())]; !ok {
+		err := CreateCouponRequestValidationError{
+			field:  "Type",
+			reason: "value must be one of the defined enum values",
 		}
-	} else if v, ok := interface{}(m.GetUserId()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return CreateCouponRequestValidationError{
-				field:  "UserId",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
+		if !all {
+			return err
 		}
-	}
-
-	if all {
-		switch v := interface{}(m.GetProductId()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, CreateCouponRequestValidationError{
-					field:  "ProductId",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, CreateCouponRequestValidationError{
-					field:  "ProductId",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetProductId()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return CreateCouponRequestValidationError{
-				field:  "ProductId",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
+		errors = append(errors, err)
 	}
 
 	// no validation rules for Amount
@@ -177,7 +128,108 @@ func (m *CreateCouponRequest) validate(all bool) error {
 		}
 	}
 
-	// no validation rules for ImageUrl
+	if _, err := url.Parse(m.GetImageUrl()); err != nil {
+		err = CreateCouponRequestValidationError{
+			field:  "ImageUrl",
+			reason: "value must be a valid URI",
+			cause:  err,
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for Description
+
+	// no validation rules for Rules
+
+	switch v := m.ApplyId.(type) {
+	case *CreateCouponRequest_UserId:
+		if v == nil {
+			err := CreateCouponRequestValidationError{
+				field:  "ApplyId",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetUserId()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, CreateCouponRequestValidationError{
+						field:  "UserId",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, CreateCouponRequestValidationError{
+						field:  "UserId",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetUserId()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return CreateCouponRequestValidationError{
+					field:  "UserId",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *CreateCouponRequest_ProductId:
+		if v == nil {
+			err := CreateCouponRequestValidationError{
+				field:  "ApplyId",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetProductId()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, CreateCouponRequestValidationError{
+						field:  "ProductId",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, CreateCouponRequestValidationError{
+						field:  "ProductId",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetProductId()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return CreateCouponRequestValidationError{
+					field:  "ProductId",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	default:
+		_ = v // ensures v is used
+	}
 
 	if len(errors) > 0 {
 		return CreateCouponRequestMultiError(errors)

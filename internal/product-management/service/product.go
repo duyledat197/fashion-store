@@ -11,7 +11,7 @@ import (
 
 	pb "trintech/review/dto/product-management/product"
 	"trintech/review/internal/product-management/entity"
-	postgresclient "trintech/review/pkg/postgres_client"
+	"trintech/review/pkg/pg_util"
 )
 
 // ProductService is representation of
@@ -31,10 +31,10 @@ type ProductService struct {
 // CreateProduct ...
 func (s *ProductService) CreateProduct(ctx context.Context, req *pb.CreateProductRequest) (*pb.CreateProductResponse, error) {
 	id, err := s.productRepo.Create(ctx, &entity.Product{
-		Name:        postgresclient.PgTypeText(req.GetName()),
-		Type:        postgresclient.PgTypeText(req.GetType()),
-		Description: postgresclient.PgTypeText(req.GetDescription()),
-		ImageURL:    postgresclient.PgTypeText(req.GetImageUrl()),
+		Name:        pg_util.PgTypeText(req.GetName()),
+		Type:        pg_util.PgTypeText(req.GetType()),
+		Description: pg_util.PgTypeText(req.GetDescription()),
+		ImageURL:    pg_util.PgTypeText(req.GetImageUrl()),
 	})
 
 	if err != nil {

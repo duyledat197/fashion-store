@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS coupons(
   "from" timestamptz,
   "to" timestamptz,
   "rules" jsonb,
+  "icon_url" text,
   "description" text,
   "created_by" bigint,
   "created_at" timestamptz DEFAULT now(),
@@ -19,7 +20,7 @@ CREATE TABLE IF NOT EXISTS coupons(
 
 --  create product coupon table
 CREATE TABLE IF NOT EXISTS product_coupons(
-  "coupon_id" bigint REFERENCES coupons("id"),
+  "coupon_id" bigint REFERENCES coupons("id") ON DELETE CASCADE,
   "product_id" bigint,
   "created_by" bigint,
   "amount" bigint,
@@ -34,7 +35,7 @@ CREATE INDEX IF NOT EXISTS product_coupons_coupon_id_idx ON product_coupons(prod
 
 --  create product user table
 CREATE TABLE IF NOT EXISTS user_coupons(
-  "coupon_id" bigint REFERENCES coupons("id"),
+  "coupon_id" bigint REFERENCES coupons("id") ON DELETE CASCADE,
   "user_id" bigint,
   "amount" bigint,
   "created_by" bigint,

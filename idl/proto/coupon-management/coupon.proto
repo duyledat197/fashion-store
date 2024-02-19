@@ -44,9 +44,11 @@ message CreateCouponRequest {
   google.protobuf.Timestamp from = 5;
   google.protobuf.Timestamp to = 6;
   string image_url = 7 [ (validate.rules).string.uri_ref = true ];
+  string description = 8;
+  bytes rules = 9;
 }
 
-message CreateCouponResponse { string id = 1; }
+message CreateCouponResponse { int64 id = 1; }
 
 //////////////////////////////////////////////
 

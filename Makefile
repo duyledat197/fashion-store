@@ -15,6 +15,9 @@ migrate-all:
 start-postgres:
 	docker compose -f ${COMPOSE_FILE} up postgres -d
 
+start-adminer:
+	docker compose -f ${COMPOSE_FILE} up adminer -d
+
 run:
 	./developments/start.sh
 test:

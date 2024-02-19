@@ -19,7 +19,7 @@ import (
 	"trintech/review/pkg/crypto_util"
 	"trintech/review/pkg/database"
 	"trintech/review/pkg/http_server/xcontext"
-	postgresclient "trintech/review/pkg/postgres_client"
+	"trintech/review/pkg/pg_util"
 	"trintech/review/pkg/pubsub"
 	"trintech/review/pkg/token_util"
 )
@@ -112,9 +112,9 @@ func (s *authService) Register(ctx context.Context, req *pb.RegisterRequest) (*p
 	}
 
 	id, err := s.userRepo.Create(ctx, s.db, &entity.User{
-		UserName: postgresclient.PgTypeText(req.GetUserName()),
-		Password: postgresclient.PgTypeText(pwd),
-		Name:     postgresclient.PgTypeText(req.GetName()),
+		UserName: pg_util.PgTypeText(req.GetUserName()),
+		Password: pg_util.PgTypeText(pwd),
+		Name:     pg_util.PgTypeText(req.GetName()),
 	})
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "unable to create user: %v", err.Error())
