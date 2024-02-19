@@ -6,6 +6,7 @@ import (
 	"trintech/review/internal/user-management/entity"
 )
 
-type UserHistoryRepo interface {
+// UserHistoryRepository ...
+type UserHistoryRepository interface {
 	Create(ctx context.Context, data *entity.UserHistory) (int64, error)
 }

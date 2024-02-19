@@ -18,6 +18,7 @@ import (
 	"trintech/review/internal/user-management/entity"
 	"trintech/review/pkg/crypto_util"
 	"trintech/review/pkg/database"
+	"trintech/review/pkg/http_server"
 	"trintech/review/pkg/http_server/xcontext"
 	"trintech/review/pkg/pg_util"
 	"trintech/review/pkg/pubsub"
@@ -90,6 +91,9 @@ func (s *authService) retrieveUserByEmail(ctx context.Context, email string) (*e
 
 // Register implements
 func (s *authService) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.RegisterResponse, error) {
+	if req.Password != req.RepeatPassword {
+		return nil, status.Errorf(codes.InvalidArgument, "password and repeated password is not match")
+	}
 	user, err := s.retrieveUserByUserName(ctx, req.GetUserName())
 	switch {
 	case user != nil:
@@ -136,7 +140,7 @@ func (s *authService) Login(ctx context.Context, req *pb.LoginRequest) (*pb.Logi
 	}
 
 	if err := crypto_util.CheckPassword(req.Password, user.Password.String); err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "password is not valid")
+		return nil, status.Errorf(codes.InvalidArgument, "username or password is not correctly")
 	}
 
 	tkn, err := s.tknGenerator.Generate(&xcontext.UserInfo{
@@ -147,10 +151,7 @@ func (s *authService) Login(ctx context.Context, req *pb.LoginRequest) (*pb.Logi
 		return nil, status.Errorf(codes.Internal, "unable to generate token: %v", err.Error())
 	}
 
-	session, err := xcontext.ExtractSessionFromContext(ctx)
-	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "unable to extract session: %v", err.Error())
-	}
+	session := http_server.ExtractSessionFromCtx(ctx)
 
 	if err := s.loginHistoryRepo.Create(ctx, s.db, &entity.LoginHistory{
 		UserID:      user.ID,
@@ -189,17 +190,18 @@ func (s *authService) ForgotPassword(ctx context.Context, req *pb.ForgotPassword
 	user, err := s.retrieveUserByEmail(ctx, req.GetEmail())
 	switch {
 	case errors.Is(err, sql.ErrNoRows):
-		return nil, status.Errorf(codes.InvalidArgument, "username or password is not correctly")
+		return nil, status.Errorf(codes.InvalidArgument, "email is not correctly")
 	case err != nil:
 		return nil, status.Errorf(codes.Internal, "unable to retrieve user: %v", err.Error())
 	}
 
 	count, err := s.userCacheRepo.IncrementForgotPassword(ctx, user.Email.String, time.Hour)
-	if count > 5 {
-		return nil, status.Errorf(codes.Internal, "forgot password count got exceed")
-	}
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "unable to increment forgot password count: %v", err.Error())
+	}
+
+	if count > 5 {
+		return nil, status.Errorf(codes.Internal, "forgot password count got exceed")
 	}
 
 	resetToken := crypto_util.GeneratePassword(15, true, true, true)

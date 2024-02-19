@@ -61,6 +61,8 @@ func (m *RegisterRequest) validate(all bool) error {
 
 	// no validation rules for Password
 
+	// no validation rules for RepeatPassword
+
 	// no validation rules for Name
 
 	if err := m._validateEmail(m.GetEmail()); err != nil {

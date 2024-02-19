@@ -7,6 +7,8 @@ import (
 	"trintech/review/pkg/database"
 )
 
-type LoginHistoryRepo interface {
-	Create(ctx context.Context, db database.Executor, data *entity.LoginHistory) (int64, error)
+// LoginHistoryRepository ...
+type LoginHistoryRepository interface {
+	Create(ctx context.Context, db database.Executor, data *entity.LoginHistory) error
+	UpdateLogout(ctx context.Context, db database.Executor, accessToken string) error
 }

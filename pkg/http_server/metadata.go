@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"google.golang.org/grpc/metadata"
@@ -86,4 +87,27 @@ func ImportSessionToMD(payload *xcontext.Session) metadata.MD {
 	)
 
 	return md
+}
+
+func ExtractUserInfoFromCtx(ctx context.Context) (*xcontext.UserInfo, bool) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return nil, false
+	}
+
+	id := stringutil.Coalesce(md.Get(MDUserIDKey)...)
+	uID, _ := strconv.Atoi(id)
+	return &xcontext.UserInfo{
+		UserID: int64(uID),
+		Role:   stringutil.Coalesce(md.Get(MDRoleKey)...),
+	}, true
+}
+
+func ExtractSessionFromCtx(ctx context.Context) *xcontext.Session {
+	md, _ := metadata.FromIncomingContext(ctx)
+
+	return &xcontext.Session{
+		IP:        stringutil.Coalesce(md.Get(MDIpKey)...),
+		UserAgent: stringutil.Coalesce(md.Get(MDUserAgent)...),
+	}
 }
