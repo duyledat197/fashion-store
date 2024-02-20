@@ -15,6 +15,72 @@ type Database struct {
 	mock.Mock
 }
 
+// BeginTx provides a mock function with given fields: ctx, opts
+func (_m *Database) BeginTx(ctx context.Context, opts *sql.TxOptions) (*sql.Tx, error) {
+	ret := _m.Called(ctx, opts)
+
+	if len(ret) == 0 {
+		panic("no return value specified for BeginTx")
+	}
+
+	var r0 *sql.Tx
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *sql.TxOptions) (*sql.Tx, error)); ok {
+		return rf(ctx, opts)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *sql.TxOptions) *sql.Tx); ok {
+		r0 = rf(ctx, opts)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*sql.Tx)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *sql.TxOptions) error); ok {
+		r1 = rf(ctx, opts)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Close provides a mock function with given fields: _a0
+func (_m *Database) Close(_a0 context.Context) error {
+	ret := _m.Called(_a0)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Close")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context) error); ok {
+		r0 = rf(_a0)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// Connect provides a mock function with given fields: _a0
+func (_m *Database) Connect(_a0 context.Context) error {
+	ret := _m.Called(_a0)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Connect")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context) error); ok {
+		r0 = rf(_a0)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // ExecContext provides a mock function with given fields: ctx, query, args
 func (_m *Database) ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error) {
 	var _ca []interface{}
@@ -99,60 +165,6 @@ func (_m *Database) QueryRowContext(ctx context.Context, query string, args ...i
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*sql.Row)
 		}
-	}
-
-	return r0
-}
-
-// Start provides a mock function with given fields: _a0
-func (_m *Database) Start(_a0 context.Context) error {
-	ret := _m.Called(_a0)
-
-	if len(ret) == 0 {
-		panic("no return value specified for Start")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context) error); ok {
-		r0 = rf(_a0)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// Stop provides a mock function with given fields: _a0
-func (_m *Database) Stop(_a0 context.Context) error {
-	ret := _m.Called(_a0)
-
-	if len(ret) == 0 {
-		panic("no return value specified for Stop")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context) error); ok {
-		r0 = rf(_a0)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// Transaction provides a mock function with given fields: _a0, _a1
-func (_m *Database) Transaction(_a0 context.Context, _a1 func(context.Context, *sql.Tx) error) error {
-	ret := _m.Called(_a0, _a1)
-
-	if len(ret) == 0 {
-		panic("no return value specified for Transaction")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, func(context.Context, *sql.Tx) error) error); ok {
-		r0 = rf(_a0, _a1)
-	} else {
-		r0 = ret.Error(0)
 	}
 
 	return r0

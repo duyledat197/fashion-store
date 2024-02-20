@@ -72,11 +72,11 @@ func (s *storageService) Upload(stream pb.UploadService_UploadServer) error {
 	}
 
 	if err := s.fileRepo.Create(ctx, s.db, &entity.File{
-		ID:        pg_util.PgTypeText(uuid.NewString()),
-		FileName:  pg_util.PgTypeText(fileName),
-		MimeType:  pg_util.PgTypeText(mimeType),
-		Size:      pg_util.PgTypeInt8(int64(fileSize)),
-		CreatedBy: pg_util.PgTypeInt8(userCtx.UserID),
+		ID:        pg_util.NullString(uuid.NewString()),
+		FileName:  pg_util.NullString(fileName),
+		MimeType:  pg_util.NullString(mimeType),
+		Size:      pg_util.NullInt64(int64(fileSize)),
+		CreatedBy: pg_util.NullInt64(userCtx.UserID),
 	}); err != nil {
 		return status.Errorf(codes.Internal, "unable to create file: %v", err)
 	}

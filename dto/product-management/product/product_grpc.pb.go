@@ -25,6 +25,7 @@ const (
 	ProductService_UpdateProductByID_FullMethodName   = "/pb.ProductService/UpdateProductByID"
 	ProductService_DeleteProductByID_FullMethodName   = "/pb.ProductService/DeleteProductByID"
 	ProductService_DeleteProductByIDs_FullMethodName  = "/pb.ProductService/DeleteProductByIDs"
+	ProductService_PurchaseProduct_FullMethodName     = "/pb.ProductService/PurchaseProduct"
 )
 
 // ProductServiceClient is the client API for ProductService service.
@@ -37,6 +38,7 @@ type ProductServiceClient interface {
 	UpdateProductByID(ctx context.Context, in *UpdateProductByIDRequest, opts ...grpc.CallOption) (*UpdateProductByIDResponse, error)
 	DeleteProductByID(ctx context.Context, in *DeleteProductByIDRequest, opts ...grpc.CallOption) (*DeleteProductByIDResponse, error)
 	DeleteProductByIDs(ctx context.Context, in *DeleteProductByIDsRequest, opts ...grpc.CallOption) (*DeleteProductByIDsResponse, error)
+	PurchaseProduct(ctx context.Context, in *PurchaseProductRequest, opts ...grpc.CallOption) (*PurchaseProductResponse, error)
 }
 
 type productServiceClient struct {
@@ -101,6 +103,15 @@ func (c *productServiceClient) DeleteProductByIDs(ctx context.Context, in *Delet
 	return out, nil
 }
 
+func (c *productServiceClient) PurchaseProduct(ctx context.Context, in *PurchaseProductRequest, opts ...grpc.CallOption) (*PurchaseProductResponse, error) {
+	out := new(PurchaseProductResponse)
+	err := c.cc.Invoke(ctx, ProductService_PurchaseProduct_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ProductServiceServer is the server API for ProductService service.
 // All implementations must embed UnimplementedProductServiceServer
 // for forward compatibility
@@ -111,6 +122,7 @@ type ProductServiceServer interface {
 	UpdateProductByID(context.Context, *UpdateProductByIDRequest) (*UpdateProductByIDResponse, error)
 	DeleteProductByID(context.Context, *DeleteProductByIDRequest) (*DeleteProductByIDResponse, error)
 	DeleteProductByIDs(context.Context, *DeleteProductByIDsRequest) (*DeleteProductByIDsResponse, error)
+	PurchaseProduct(context.Context, *PurchaseProductRequest) (*PurchaseProductResponse, error)
 	mustEmbedUnimplementedProductServiceServer()
 }
 
@@ -135,6 +147,9 @@ func (UnimplementedProductServiceServer) DeleteProductByID(context.Context, *Del
 }
 func (UnimplementedProductServiceServer) DeleteProductByIDs(context.Context, *DeleteProductByIDsRequest) (*DeleteProductByIDsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteProductByIDs not implemented")
+}
+func (UnimplementedProductServiceServer) PurchaseProduct(context.Context, *PurchaseProductRequest) (*PurchaseProductResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PurchaseProduct not implemented")
 }
 func (UnimplementedProductServiceServer) mustEmbedUnimplementedProductServiceServer() {}
 
@@ -257,6 +272,24 @@ func _ProductService_DeleteProductByIDs_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ProductService_PurchaseProduct_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PurchaseProductRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProductServiceServer).PurchaseProduct(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProductService_PurchaseProduct_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProductServiceServer).PurchaseProduct(ctx, req.(*PurchaseProductRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ProductService_ServiceDesc is the grpc.ServiceDesc for ProductService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -287,6 +320,10 @@ var ProductService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteProductByIDs",
 			Handler:    _ProductService_DeleteProductByIDs_Handler,
+		},
+		{
+			MethodName: "PurchaseProduct",
+			Handler:    _ProductService_PurchaseProduct_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

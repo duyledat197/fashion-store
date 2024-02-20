@@ -1,7 +1,7 @@
 package entity
 
 import (
-	"github.com/jackc/pgx/v5/pgtype"
+	"database/sql"
 )
 
 type UserRole string
@@ -13,14 +13,14 @@ const (
 )
 
 type User struct {
-	ID        int64              `json:"id,omitempty"`
-	UserName  pgtype.Text        `json:"user_name,omitempty"`
-	Email     pgtype.Text        `json:"email,omitempty"`
-	Password  pgtype.Text        `json:"password,omitempty"`
-	Name      pgtype.Text        `json:"name,omitempty"`
-	Role      UserRole           `json:"role,omitempty"`
-	CreatedAt pgtype.Timestamptz `json:"created_at,omitempty"`
-	UpdatedAt pgtype.Timestamptz `json:"updated_at,omitempty"`
+	ID        sql.NullInt64  `db:"id"`
+	UserName  sql.NullString `db:"user_name"`
+	Email     sql.NullString `db:"email"`
+	Password  sql.NullString `db:"password"`
+	Name      sql.NullString `db:"name"`
+	Role      UserRole       `db:"role"`
+	CreatedAt sql.NullTime   `db:"created_at"`
+	UpdatedAt sql.NullTime   `db:"updated_at"`
 }
 
 func (u *User) TableName() string {

@@ -11,8 +11,6 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 
 	"trintech/review/config"
-	pb "trintech/review/dto/user-management/auth"
-	"trintech/review/pkg/http_server/xcontext"
 	"trintech/review/pkg/token_util"
 )
 
@@ -27,8 +25,7 @@ type HttpServer struct {
 func NewHttpServer(
 	handler func(mux *runtime.ServeMux),
 	cfg *config.Endpoint,
-	authenticator token_util.Authenticator[*xcontext.UserInfo],
-	client pb.AuthServiceClient,
+	authenticator token_util.JWTAuthenticator,
 ) *HttpServer {
 	mux := runtime.NewServeMux(
 		runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{

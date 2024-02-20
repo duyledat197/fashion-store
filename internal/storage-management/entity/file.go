@@ -1,15 +1,17 @@
 package entity
 
-import "github.com/jackc/pgx/v5/pgtype"
+import (
+	"database/sql"
+)
 
 type File struct {
-	ID        pgtype.Text
-	FileName  pgtype.Text
-	MimeType  pgtype.Text
-	Size      pgtype.Int8
-	CreatedBy pgtype.Int8
-	CreatedAt pgtype.Timestamptz
-	UpdatedAt pgtype.Timestamptz
+	ID        sql.NullString
+	FileName  sql.NullString
+	MimeType  sql.NullString
+	Size      sql.NullInt64
+	CreatedBy sql.NullInt64
+	CreatedAt sql.NullTime
+	UpdatedAt sql.NullTime
 }
 
 func (t *File) TableName() string {

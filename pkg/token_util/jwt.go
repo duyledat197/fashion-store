@@ -6,22 +6,23 @@ import (
 	"time"
 
 	"github.com/reddit/jwt-go"
+
+	"trintech/review/pkg/http_server/xcontext"
 )
 
 // JWTAuthenticator is representation of [Authenticator] engine that implement using JWT.
-type JWTAuthenticator[T Claims] struct {
+type JWTAuthenticator struct {
 	secretKey string
 }
 
-func NewJWTAuthenticator[T Claims](secretKey string) (Authenticator[T], error) {
-	return &JWTAuthenticator[T]{
+func NewJWTAuthenticator(secretKey string) (JWTAuthenticator, error) {
+	return JWTAuthenticator{
 		secretKey,
 	}, nil
 }
 
-func (a *JWTAuthenticator[T]) Generate(payload T, expirationTime time.Duration) (string, error) {
+func (a *JWTAuthenticator) Generate(payload *xcontext.UserInfo, expirationTime time.Duration) (string, error) {
 	payload.AddExpired(expirationTime)
-
 	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, payload)
 	token, err := jwtToken.SignedString([]byte(a.secretKey))
 	if err != nil {
@@ -32,7 +33,7 @@ func (a *JWTAuthenticator[T]) Generate(payload T, expirationTime time.Duration) 
 
 }
 
-func (a *JWTAuthenticator[T]) Verify(token string) (T, error) {
+func (a *JWTAuthenticator) Verify(token string) (*xcontext.UserInfo, error) {
 	keyFunc := func(token *jwt.Token) (any, error) {
 		_, ok := token.Method.(*jwt.SigningMethodHMAC)
 		if !ok {
@@ -40,19 +41,20 @@ func (a *JWTAuthenticator[T]) Verify(token string) (T, error) {
 		}
 		return []byte(a.secretKey), nil
 	}
-	var claims T
-	jwtToken, err := jwt.ParseWithClaims(token, claims, keyFunc)
+	var claims xcontext.UserInfo
+	jwtToken, err := jwt.ParseWithClaims(token, &claims, keyFunc)
 	if err != nil {
 		verr, ok := err.(*jwt.ValidationError)
 		if ok && errors.Is(verr.Inner, fmt.Errorf("")) {
-			return claims, fmt.Errorf("token is not valid")
+			return &claims, fmt.Errorf("token is not valid")
 		}
-		return claims, fmt.Errorf("token is not valid: %w", err)
+
+		return &claims, fmt.Errorf("token is not valid: %w", err)
 	}
 
-	payload, ok := jwtToken.Claims.(T)
+	payload, ok := jwtToken.Claims.(*xcontext.UserInfo)
 	if !ok {
-		return claims, fmt.Errorf("token is not valid")
+		return &claims, fmt.Errorf("token is not valid")
 	}
 
 	return payload, nil

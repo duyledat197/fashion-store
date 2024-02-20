@@ -51,6 +51,13 @@ service ProductService {
       delete : "/v1/products"
     };
   }
+
+  rpc PurchaseProduct(PurchaseProductRequest)
+      returns (PurchaseProductResponse) {
+    option (google.api.http) = {
+      put : "/v1/products/{id}/purchase"
+    };
+  }
 }
 //////////////////////////////////////////////
 
@@ -58,8 +65,9 @@ service ProductService {
 message Product {
   string name = 1;
   string type = 2;
-  string image_url = 3;
+  repeated string image_urls = 3;
   string description = 4;
+  double price = 5;
 }
 
 //////////////////////////////////////////////
@@ -83,8 +91,9 @@ message ListProductResponse {
 message CreateProductRequest {
   string name = 1;
   string type = 2;
-  string image_url = 3 [ (validate.rules).string.uri_ref = true ];
+  repeated string image_urls = 3;
   string description = 4;
+  double price = 5;
 }
 
 message CreateProductResponse { int64 id = 1; }
@@ -95,8 +104,9 @@ message UpdateProductByIDRequest {
   int64 id = 1;
   string name = 2;
   string type = 3;
-  string image_url = 4 [ (validate.rules).string.uri_ref = true ];
+  repeated string image_urls = 4;
   string description = 5;
+  double price = 6;
 }
 message UpdateProductByIDResponse {}
 
@@ -109,3 +119,11 @@ message DeleteProductByIDResponse {}
 
 message DeleteProductByIDsRequest { repeated int64 ids = 1; }
 message DeleteProductByIDsResponse {}
+
+//////////////////////////////////////////////
+
+message PurchaseProductRequest {
+  int64 id = 1;
+  google.protobuf.StringValue coupon = 2;
+}
+message PurchaseProductResponse {}

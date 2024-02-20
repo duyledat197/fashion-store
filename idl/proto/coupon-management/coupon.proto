@@ -23,6 +23,25 @@ service CouponService {
       delete : "/v1/coupons/{id}"
     };
   }
+
+  rpc RetrieveCouponByCode(RetrieveCouponByCodeRequest)
+      returns (RetrieveCouponByCodeResponse) {
+    option (google.api.http) = {
+      get : "/v1/coupons/{code}"
+    };
+  }
+
+  rpc ListUsedCoupon(ListUsedCouponRequest) returns (ListUsedCouponResponse) {
+    option (google.api.http) = {
+      get : "/v1/coupons/used"
+    };
+  }
+
+  rpc ApplyCoupon(ApplyCouponRequest) returns (ApplyCouponResponse) {
+    option (google.api.http) = {
+      put : "/v1/coupons/{code}/apply"
+    };
+  }
 }
 
 //////////////////////////////////////////////
@@ -31,6 +50,13 @@ enum CouponType {
   CouponType_NONE = 0;
   CouponType_USER = 1;
   CouponType_PRODUCT = 2;
+  CouponType_LIMITED = 3;
+}
+
+enum DiscountType {
+  DiscountType_NONE = 0;
+  DiscountType_PERCENT = 1;
+  DiscountType_VALUE = 2;
 }
 
 //////////////////////////////////////////////
@@ -40,12 +66,17 @@ message CreateCouponRequest {
     google.protobuf.Int64Value user_id = 2;
     google.protobuf.Int64Value product_id = 3;
   }
-  int64 amount = 4;
+  int64 total = 4;
+
   google.protobuf.Timestamp from = 5;
   google.protobuf.Timestamp to = 6;
   string image_url = 7 [ (validate.rules).string.uri_ref = true ];
   string description = 8;
   bytes rules = 9;
+  DiscountType discount_type = 10 [ (validate.rules).enum.defined_only = true ];
+
+  int64 value = 11;
+  int64 used = 12;
 }
 
 message CreateCouponResponse { int64 id = 1; }
@@ -53,5 +84,41 @@ message CreateCouponResponse { int64 id = 1; }
 //////////////////////////////////////////////
 
 message DeleteCouponByIDRequest { int64 id = 1; }
-
 message DeleteCouponByIDResponse {}
+
+//////////////////////////////////////////////
+
+message RetrieveCouponByCodeRequest {
+  string code = 1;
+  bool check_use = 2;
+}
+
+message RetrieveCouponByCodeResponse {
+  CouponType type = 1;
+  int64 total = 2;
+  google.protobuf.Timestamp from = 3;
+  google.protobuf.Timestamp to = 4;
+  string image_url = 5;
+  string description = 6;
+  bytes rules = 7;
+  DiscountType discount_type = 8;
+  double value = 9;
+  bool can_use = 10;
+  int64 used = 11;
+}
+
+//////////////////////////////////////////////
+message ListUsedCouponRequest {}
+message ListUsedCouponResponse {
+  message Coupon {
+    string code = 1;
+    google.protobuf.Timestamp apply_at = 2;
+    string description = 3;
+    string image_url = 4;
+  }
+  repeated Coupon data = 1;
+}
+
+//////////////////////////////////////////////
+message ApplyCouponRequest { string code = 1; }
+message ApplyCouponResponse {}

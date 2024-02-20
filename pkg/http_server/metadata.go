@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -44,7 +45,7 @@ func DataResponse(w http.ResponseWriter, data any) {
 type mapMetaDataFunc func(context.Context, *http.Request) metadata.MD
 
 // MapMetaDataWithBearerToken ...
-func MapMetaDataWithBearerToken(authenticator token_util.Authenticator[*xcontext.UserInfo]) mapMetaDataFunc {
+func MapMetaDataWithBearerToken(authenticator token_util.JWTAuthenticator) mapMetaDataFunc {
 	return func(ctx context.Context, r *http.Request) metadata.MD {
 		md, _ := metadata.FromIncomingContext(ctx)
 
@@ -59,6 +60,7 @@ func MapMetaDataWithBearerToken(authenticator token_util.Authenticator[*xcontext
 			schema, token, isValid := strings.Cut(authorization, " ")
 			if schema == BEARER && isValid {
 				payload, err := authenticator.Verify(token)
+				log.Println(*payload)
 				if err == nil {
 					md = metadata.Join(md, ImportUserInfoToMD(payload))
 				}
@@ -110,4 +112,9 @@ func ExtractSessionFromCtx(ctx context.Context) *xcontext.Session {
 		IP:        stringutil.Coalesce(md.Get(MDIpKey)...),
 		UserAgent: stringutil.Coalesce(md.Get(MDUserAgent)...),
 	}
+}
+
+func InjectIncomingCtxToOutgoingCtx(ctx context.Context) context.Context {
+	md, _ := metadata.FromIncomingContext(ctx)
+	return metadata.NewOutgoingContext(ctx, md)
 }

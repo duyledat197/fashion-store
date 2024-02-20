@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"database/sql"
+
 	"trintech/review/pkg/processor"
 )
 
@@ -17,6 +18,6 @@ type Executor interface {
 // Database is presentation of an database ase driver which implement [Executor], [trintech/review/pkg/processor.Processor] and transaction.
 type Database interface {
 	Executor
-	processor.Processor
-	Transaction(context.Context, func(context.Context, *sql.Tx) error) error
+	processor.Factory
+	BeginTx(ctx context.Context, opts *sql.TxOptions) (*sql.Tx, error)
 }

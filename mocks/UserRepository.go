@@ -15,9 +15,9 @@ type UserRepository struct {
 	mock.Mock
 }
 
-// Create provides a mock function with given fields: _a0, _a1, _a2
-func (_m *UserRepository) Create(_a0 context.Context, _a1 database.Executor, _a2 *entity.User) (int64, error) {
-	ret := _m.Called(_a0, _a1, _a2)
+// Create provides a mock function with given fields: ctx, db, data
+func (_m *UserRepository) Create(ctx context.Context, db database.Executor, data *entity.User) (int64, error) {
+	ret := _m.Called(ctx, db, data)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
@@ -26,16 +26,16 @@ func (_m *UserRepository) Create(_a0 context.Context, _a1 database.Executor, _a2
 	var r0 int64
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context, database.Executor, *entity.User) (int64, error)); ok {
-		return rf(_a0, _a1, _a2)
+		return rf(ctx, db, data)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context, database.Executor, *entity.User) int64); ok {
-		r0 = rf(_a0, _a1, _a2)
+		r0 = rf(ctx, db, data)
 	} else {
 		r0 = ret.Get(0).(int64)
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, database.Executor, *entity.User) error); ok {
-		r1 = rf(_a0, _a1, _a2)
+		r1 = rf(ctx, db, data)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -43,9 +43,9 @@ func (_m *UserRepository) Create(_a0 context.Context, _a1 database.Executor, _a2
 	return r0, r1
 }
 
-// RetrieveByEmail provides a mock function with given fields: _a0, _a1
-func (_m *UserRepository) RetrieveByEmail(_a0 context.Context, _a1 string) (*entity.User, error) {
-	ret := _m.Called(_a0, _a1)
+// RetrieveByEmail provides a mock function with given fields: ctx, db, email
+func (_m *UserRepository) RetrieveByEmail(ctx context.Context, db database.Executor, email string) (*entity.User, error) {
+	ret := _m.Called(ctx, db, email)
 
 	if len(ret) == 0 {
 		panic("no return value specified for RetrieveByEmail")
@@ -53,19 +53,19 @@ func (_m *UserRepository) RetrieveByEmail(_a0 context.Context, _a1 string) (*ent
 
 	var r0 *entity.User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (*entity.User, error)); ok {
-		return rf(_a0, _a1)
+	if rf, ok := ret.Get(0).(func(context.Context, database.Executor, string) (*entity.User, error)); ok {
+		return rf(ctx, db, email)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) *entity.User); ok {
-		r0 = rf(_a0, _a1)
+	if rf, ok := ret.Get(0).(func(context.Context, database.Executor, string) *entity.User); ok {
+		r0 = rf(ctx, db, email)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*entity.User)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
-		r1 = rf(_a0, _a1)
+	if rf, ok := ret.Get(1).(func(context.Context, database.Executor, string) error); ok {
+		r1 = rf(ctx, db, email)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -73,9 +73,9 @@ func (_m *UserRepository) RetrieveByEmail(_a0 context.Context, _a1 string) (*ent
 	return r0, r1
 }
 
-// RetrieveByUserName provides a mock function with given fields: _a0, _a1
-func (_m *UserRepository) RetrieveByUserName(_a0 context.Context, _a1 string) (*entity.User, error) {
-	ret := _m.Called(_a0, _a1)
+// RetrieveByUserName provides a mock function with given fields: ctx, db, userName
+func (_m *UserRepository) RetrieveByUserName(ctx context.Context, db database.Executor, userName string) (*entity.User, error) {
+	ret := _m.Called(ctx, db, userName)
 
 	if len(ret) == 0 {
 		panic("no return value specified for RetrieveByUserName")
@@ -83,19 +83,19 @@ func (_m *UserRepository) RetrieveByUserName(_a0 context.Context, _a1 string) (*
 
 	var r0 *entity.User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (*entity.User, error)); ok {
-		return rf(_a0, _a1)
+	if rf, ok := ret.Get(0).(func(context.Context, database.Executor, string) (*entity.User, error)); ok {
+		return rf(ctx, db, userName)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) *entity.User); ok {
-		r0 = rf(_a0, _a1)
+	if rf, ok := ret.Get(0).(func(context.Context, database.Executor, string) *entity.User); ok {
+		r0 = rf(ctx, db, userName)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*entity.User)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
-		r1 = rf(_a0, _a1)
+	if rf, ok := ret.Get(1).(func(context.Context, database.Executor, string) error); ok {
+		r1 = rf(ctx, db, userName)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -103,17 +103,17 @@ func (_m *UserRepository) RetrieveByUserName(_a0 context.Context, _a1 string) (*
 	return r0, r1
 }
 
-// UpdatePassword provides a mock function with given fields: ctx, email, password
-func (_m *UserRepository) UpdatePassword(ctx context.Context, email string, password string) error {
-	ret := _m.Called(ctx, email, password)
+// UpdatePassword provides a mock function with given fields: ctx, db, email, password
+func (_m *UserRepository) UpdatePassword(ctx context.Context, db database.Executor, email string, password string) error {
+	ret := _m.Called(ctx, db, email, password)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdatePassword")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string) error); ok {
-		r0 = rf(ctx, email, password)
+	if rf, ok := ret.Get(0).(func(context.Context, database.Executor, string, string) error); ok {
+		r0 = rf(ctx, db, email, password)
 	} else {
 		r0 = ret.Error(0)
 	}

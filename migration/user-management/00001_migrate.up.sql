@@ -7,7 +7,7 @@ CREATE TYPE role_type AS ENUM(
 
 --  create user table
 CREATE TABLE IF NOT EXISTS users(
-  "id" bigint PRIMARY KEY,
+  "id" serial PRIMARY KEY,
   "user_name" text UNIQUE,
   "email" text UNIQUE,
   "password" text NOT NULL,
@@ -20,4 +20,15 @@ CREATE TABLE IF NOT EXISTS users(
 CREATE INDEX IF NOT EXISTS users_user_name_idx ON users(user_name);
 
 CREATE INDEX IF NOT EXISTS users_email_idx ON users(email);
+
+CREATE TABLE IF NOT EXISTS login_histories(
+  "user_id" bigint,
+  "ip" text,
+  "user_agent" text,
+  "access_token" text,
+  "login_at" timestamptz DEFAULT now(),
+  "logout_at" timestamptz
+);
+
+CREATE INDEX IF NOT EXISTS login_histories_user_id_idx ON login_histories(user_id);
 

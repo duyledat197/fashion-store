@@ -22,6 +22,20 @@ func (x CouponType) FromString(str string) CouponType {
 		return CouponType_CouponType_USER
 	case CouponType_CouponType_PRODUCT.String():
 		return CouponType_CouponType_PRODUCT
+	case CouponType_CouponType_LIMITED.String():
+		return CouponType_CouponType_LIMITED
 	}
 	return CouponType(0)
+}
+
+func (x DiscountType) FromString(str string) DiscountType {
+	switch str {
+	case DiscountType_DiscountType_NONE.String():
+		return DiscountType_DiscountType_NONE
+	case DiscountType_DiscountType_PERCENT.String():
+		return DiscountType_DiscountType_PERCENT
+	case DiscountType_DiscountType_VALUE.String():
+		return DiscountType_DiscountType_VALUE
+	}
+	return DiscountType(0)
 }

@@ -19,8 +19,11 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	CouponService_CreateCoupon_FullMethodName     = "/pb.CouponService/CreateCoupon"
-	CouponService_DeleteCouponByID_FullMethodName = "/pb.CouponService/DeleteCouponByID"
+	CouponService_CreateCoupon_FullMethodName         = "/pb.CouponService/CreateCoupon"
+	CouponService_DeleteCouponByID_FullMethodName     = "/pb.CouponService/DeleteCouponByID"
+	CouponService_RetrieveCouponByCode_FullMethodName = "/pb.CouponService/RetrieveCouponByCode"
+	CouponService_ListUsedCoupon_FullMethodName       = "/pb.CouponService/ListUsedCoupon"
+	CouponService_ApplyCoupon_FullMethodName          = "/pb.CouponService/ApplyCoupon"
 )
 
 // CouponServiceClient is the client API for CouponService service.
@@ -29,6 +32,9 @@ const (
 type CouponServiceClient interface {
 	CreateCoupon(ctx context.Context, in *CreateCouponRequest, opts ...grpc.CallOption) (*CreateCouponResponse, error)
 	DeleteCouponByID(ctx context.Context, in *DeleteCouponByIDRequest, opts ...grpc.CallOption) (*DeleteCouponByIDResponse, error)
+	RetrieveCouponByCode(ctx context.Context, in *RetrieveCouponByCodeRequest, opts ...grpc.CallOption) (*RetrieveCouponByCodeResponse, error)
+	ListUsedCoupon(ctx context.Context, in *ListUsedCouponRequest, opts ...grpc.CallOption) (*ListUsedCouponResponse, error)
+	ApplyCoupon(ctx context.Context, in *ApplyCouponRequest, opts ...grpc.CallOption) (*ApplyCouponResponse, error)
 }
 
 type couponServiceClient struct {
@@ -57,12 +63,42 @@ func (c *couponServiceClient) DeleteCouponByID(ctx context.Context, in *DeleteCo
 	return out, nil
 }
 
+func (c *couponServiceClient) RetrieveCouponByCode(ctx context.Context, in *RetrieveCouponByCodeRequest, opts ...grpc.CallOption) (*RetrieveCouponByCodeResponse, error) {
+	out := new(RetrieveCouponByCodeResponse)
+	err := c.cc.Invoke(ctx, CouponService_RetrieveCouponByCode_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *couponServiceClient) ListUsedCoupon(ctx context.Context, in *ListUsedCouponRequest, opts ...grpc.CallOption) (*ListUsedCouponResponse, error) {
+	out := new(ListUsedCouponResponse)
+	err := c.cc.Invoke(ctx, CouponService_ListUsedCoupon_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *couponServiceClient) ApplyCoupon(ctx context.Context, in *ApplyCouponRequest, opts ...grpc.CallOption) (*ApplyCouponResponse, error) {
+	out := new(ApplyCouponResponse)
+	err := c.cc.Invoke(ctx, CouponService_ApplyCoupon_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CouponServiceServer is the server API for CouponService service.
 // All implementations must embed UnimplementedCouponServiceServer
 // for forward compatibility
 type CouponServiceServer interface {
 	CreateCoupon(context.Context, *CreateCouponRequest) (*CreateCouponResponse, error)
 	DeleteCouponByID(context.Context, *DeleteCouponByIDRequest) (*DeleteCouponByIDResponse, error)
+	RetrieveCouponByCode(context.Context, *RetrieveCouponByCodeRequest) (*RetrieveCouponByCodeResponse, error)
+	ListUsedCoupon(context.Context, *ListUsedCouponRequest) (*ListUsedCouponResponse, error)
+	ApplyCoupon(context.Context, *ApplyCouponRequest) (*ApplyCouponResponse, error)
 	mustEmbedUnimplementedCouponServiceServer()
 }
 
@@ -75,6 +111,15 @@ func (UnimplementedCouponServiceServer) CreateCoupon(context.Context, *CreateCou
 }
 func (UnimplementedCouponServiceServer) DeleteCouponByID(context.Context, *DeleteCouponByIDRequest) (*DeleteCouponByIDResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteCouponByID not implemented")
+}
+func (UnimplementedCouponServiceServer) RetrieveCouponByCode(context.Context, *RetrieveCouponByCodeRequest) (*RetrieveCouponByCodeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RetrieveCouponByCode not implemented")
+}
+func (UnimplementedCouponServiceServer) ListUsedCoupon(context.Context, *ListUsedCouponRequest) (*ListUsedCouponResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListUsedCoupon not implemented")
+}
+func (UnimplementedCouponServiceServer) ApplyCoupon(context.Context, *ApplyCouponRequest) (*ApplyCouponResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ApplyCoupon not implemented")
 }
 func (UnimplementedCouponServiceServer) mustEmbedUnimplementedCouponServiceServer() {}
 
@@ -125,6 +170,60 @@ func _CouponService_DeleteCouponByID_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CouponService_RetrieveCouponByCode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RetrieveCouponByCodeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CouponServiceServer).RetrieveCouponByCode(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CouponService_RetrieveCouponByCode_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CouponServiceServer).RetrieveCouponByCode(ctx, req.(*RetrieveCouponByCodeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CouponService_ListUsedCoupon_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListUsedCouponRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CouponServiceServer).ListUsedCoupon(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CouponService_ListUsedCoupon_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CouponServiceServer).ListUsedCoupon(ctx, req.(*ListUsedCouponRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CouponService_ApplyCoupon_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ApplyCouponRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CouponServiceServer).ApplyCoupon(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CouponService_ApplyCoupon_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CouponServiceServer).ApplyCoupon(ctx, req.(*ApplyCouponRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // CouponService_ServiceDesc is the grpc.ServiceDesc for CouponService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -139,6 +238,18 @@ var CouponService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteCouponByID",
 			Handler:    _CouponService_DeleteCouponByID_Handler,
+		},
+		{
+			MethodName: "RetrieveCouponByCode",
+			Handler:    _CouponService_RetrieveCouponByCode_Handler,
+		},
+		{
+			MethodName: "ListUsedCoupon",
+			Handler:    _CouponService_ListUsedCoupon_Handler,
+		},
+		{
+			MethodName: "ApplyCoupon",
+			Handler:    _CouponService_ApplyCoupon_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

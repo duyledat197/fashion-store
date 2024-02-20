@@ -16,6 +16,8 @@ import (
 	msgpb "trintech/review/dto/msg/common"
 	pb "trintech/review/dto/user-management/auth"
 	"trintech/review/internal/user-management/entity"
+	memcache "trintech/review/internal/user-management/repository/cache"
+	"trintech/review/internal/user-management/repository/postgres"
 	"trintech/review/pkg/crypto_util"
 	"trintech/review/pkg/database"
 	"trintech/review/pkg/http_server"
@@ -31,10 +33,10 @@ type AuthService interface {
 
 type authService struct {
 	userRepo interface {
-		RetrieveByEmail(context.Context, string) (*entity.User, error)
-		RetrieveByUserName(context.Context, string) (*entity.User, error)
+		RetrieveByEmail(context.Context, database.Executor, string) (*entity.User, error)
+		RetrieveByUserName(context.Context, database.Executor, string) (*entity.User, error)
 		Create(context.Context, database.Executor, *entity.User) (int64, error)
-		UpdatePassword(ctx context.Context, email, password string) error
+		UpdatePassword(ctx context.Context, db database.Executor, email, password string) error
 	}
 
 	loginHistoryRepo interface {
@@ -51,14 +53,14 @@ type authService struct {
 		StoreByEmail(context.Context, string, *entity.User) error
 		RemoveByEmail(context.Context, string) error
 
-		IncrementForgotPassword(ctx context.Context, email string, duration time.Duration) (int64, error)
+		IncrementForgotPassword(ctx context.Context, email string) (int64, error)
 
-		StoreResetToken(ctx context.Context, email string, resetToken string, duration time.Duration) error
-		RetrieveResetToken(ctx context.Context, email string, resetToken string) error
+		StoreResetToken(ctx context.Context, email string, resetToken string) error
+		IsExistResetToken(ctx context.Context, email string, resetToken string) error
 		RemoveByResetToken(context.Context, string, string) error
 	}
 
-	tknGenerator token_util.Authenticator[*xcontext.UserInfo]
+	tknGenerator token_util.JWTAuthenticator
 	db           database.Database
 
 	publisher pubsub.Publisher
@@ -67,14 +69,25 @@ type authService struct {
 }
 
 // NewAuthService is representation of
-func NewAuthService() AuthService {
-	return &authService{}
+func NewAuthService(
+	db database.Database,
+	publisher pubsub.Publisher,
+	tknGenerator token_util.JWTAuthenticator,
+) pb.AuthServiceServer {
+	return &authService{
+		db:               db,
+		publisher:        publisher,
+		tknGenerator:     tknGenerator,
+		userRepo:         postgres.NewUserRepository(),
+		loginHistoryRepo: postgres.NewLoginHistoryRepository(),
+		userCacheRepo:    memcache.NewUserCacheRepository(),
+	}
 }
 
 func (s *authService) retrieveUserByUserName(ctx context.Context, userName string) (*entity.User, error) {
 	user, err := s.userCacheRepo.RetrieveByUserName(ctx, userName)
 	if user == nil {
-		user, err = s.userRepo.RetrieveByUserName(ctx, userName)
+		user, err = s.userRepo.RetrieveByUserName(ctx, s.db, userName)
 	}
 
 	return user, err
@@ -83,7 +96,7 @@ func (s *authService) retrieveUserByUserName(ctx context.Context, userName strin
 func (s *authService) retrieveUserByEmail(ctx context.Context, email string) (*entity.User, error) {
 	user, err := s.userCacheRepo.RetrieveByEmail(ctx, email)
 	if user == nil {
-		user, err = s.userRepo.RetrieveByEmail(ctx, email)
+		user, err = s.userRepo.RetrieveByEmail(ctx, s.db, email)
 	}
 
 	return user, err
@@ -116,9 +129,11 @@ func (s *authService) Register(ctx context.Context, req *pb.RegisterRequest) (*p
 	}
 
 	id, err := s.userRepo.Create(ctx, s.db, &entity.User{
-		UserName: pg_util.PgTypeText(req.GetUserName()),
-		Password: pg_util.PgTypeText(pwd),
-		Name:     pg_util.PgTypeText(req.GetName()),
+		UserName: pg_util.NullString(req.GetUserName()),
+		Email:    pg_util.NullString(req.GetEmail()),
+		Password: pg_util.NullString(pwd),
+		Name:     pg_util.NullString(req.GetName()),
+		Role:     entity.UserRole_User,
 	})
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "unable to create user: %v", err.Error())
@@ -144,7 +159,7 @@ func (s *authService) Login(ctx context.Context, req *pb.LoginRequest) (*pb.Logi
 	}
 
 	tkn, err := s.tknGenerator.Generate(&xcontext.UserInfo{
-		UserID: user.ID,
+		UserID: user.ID.Int64,
 		Role:   string(user.Role),
 	}, 24*time.Hour)
 	if err != nil {
@@ -154,21 +169,20 @@ func (s *authService) Login(ctx context.Context, req *pb.LoginRequest) (*pb.Logi
 	session := http_server.ExtractSessionFromCtx(ctx)
 
 	if err := s.loginHistoryRepo.Create(ctx, s.db, &entity.LoginHistory{
-		UserID:      user.ID,
-		IP:          session.IP,
-		AccessToken: tkn,
-		UserAgent:   session.UserAgent,
-		LoginAt:     time.Now(),
+		UserID:      pg_util.NullInt64(user.ID.Int64),
+		IP:          pg_util.NullString(session.IP),
+		AccessToken: pg_util.NullString(tkn),
+		UserAgent:   pg_util.NullString(session.UserAgent),
 	}); err != nil {
 		return nil, status.Errorf(codes.Internal, "unable to create login history: %v", err.Error())
 	}
 
 	if err := s.userCacheRepo.StoreByUserName(ctx, user.UserName.String, user); err != nil {
-		slog.Error("unable to store user cache: %w", err)
+		slog.Error("unable to store user cache", "err", err)
 	}
 
 	return &pb.LoginResponse{
-		UserId:      user.ID,
+		UserId:      user.ID.Int64,
 		AccessToken: tkn,
 	}, nil
 }
@@ -195,7 +209,7 @@ func (s *authService) ForgotPassword(ctx context.Context, req *pb.ForgotPassword
 		return nil, status.Errorf(codes.Internal, "unable to retrieve user: %v", err.Error())
 	}
 
-	count, err := s.userCacheRepo.IncrementForgotPassword(ctx, user.Email.String, time.Hour)
+	count, err := s.userCacheRepo.IncrementForgotPassword(ctx, user.Email.String)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "unable to increment forgot password count: %v", err.Error())
 	}
@@ -205,7 +219,7 @@ func (s *authService) ForgotPassword(ctx context.Context, req *pb.ForgotPassword
 	}
 
 	resetToken := crypto_util.GeneratePassword(15, true, true, true)
-	if err := s.userCacheRepo.StoreResetToken(ctx, req.GetEmail(), resetToken, 5*time.Minute); err != nil {
+	if err := s.userCacheRepo.StoreResetToken(ctx, req.GetEmail(), resetToken); err != nil {
 		return nil, status.Errorf(codes.Internal, "unable to store forgot password token: %v", err.Error())
 	}
 
@@ -233,7 +247,7 @@ func (s *authService) ResetPassword(ctx context.Context, req *pb.ResetPasswordRe
 		return nil, status.Errorf(codes.InvalidArgument, "new password and repeated password is not match")
 	}
 
-	if err := s.userCacheRepo.RetrieveResetToken(ctx, req.GetEmail(), req.GetResetToken()); err != nil {
+	if err := s.userCacheRepo.IsExistResetToken(ctx, req.GetEmail(), req.GetResetToken()); err != nil {
 		return nil, status.Errorf(codes.FailedPrecondition, "unable to retrieve forgot password token: %v", err.Error())
 	}
 
@@ -242,7 +256,7 @@ func (s *authService) ResetPassword(ctx context.Context, req *pb.ResetPasswordRe
 		return nil, status.Errorf(codes.Internal, "unable to hash password")
 	}
 
-	if err := s.userRepo.UpdatePassword(ctx, req.GetEmail(), pwd); err != nil {
+	if err := s.userRepo.UpdatePassword(ctx, s.db, req.GetEmail(), pwd); err != nil {
 		return nil, status.Errorf(codes.Internal, "unable to update password: %v", err.Error())
 	}
 

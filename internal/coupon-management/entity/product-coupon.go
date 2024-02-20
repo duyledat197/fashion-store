@@ -1,13 +1,20 @@
 package entity
 
-import "github.com/jackc/pgx/v5/pgtype"
+import (
+	"database/sql"
+)
 
 // ProductCoupon ...
 type ProductCoupon struct {
-	CouponID  pgtype.Int8
-	ProductID pgtype.Int8
-	CreatedBy pgtype.Int8
-	Amount    pgtype.Int8
-	CreatedAt pgtype.Timestamptz
-	UpdatedAt pgtype.Timestamptz
+	CouponID  sql.NullInt64 `db:"coupon_id"`
+	ProductID sql.NullInt64 `db:"product_id"`
+	Used      sql.NullInt64 `db:"used"`
+	Total     sql.NullInt64 `db:"total"`
+	CreatedBy sql.NullInt64 `db:"created_by"`
+	CreatedAt sql.NullTime  `db:"created_at"`
+	UpdatedAt sql.NullTime  `db:"updated_at"`
+}
+
+func (t *ProductCoupon) TableName() string {
+	return "product_coupons"
 }

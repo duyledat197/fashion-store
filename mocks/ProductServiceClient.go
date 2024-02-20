@@ -165,6 +165,43 @@ func (_m *ProductServiceClient) ListProduct(ctx context.Context, in *product.Lis
 	return r0, r1
 }
 
+// PurchaseProduct provides a mock function with given fields: ctx, in, opts
+func (_m *ProductServiceClient) PurchaseProduct(ctx context.Context, in *product.PurchaseProductRequest, opts ...grpc.CallOption) (*product.PurchaseProductResponse, error) {
+	_va := make([]interface{}, len(opts))
+	for _i := range opts {
+		_va[_i] = opts[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, in)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PurchaseProduct")
+	}
+
+	var r0 *product.PurchaseProductResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *product.PurchaseProductRequest, ...grpc.CallOption) (*product.PurchaseProductResponse, error)); ok {
+		return rf(ctx, in, opts...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *product.PurchaseProductRequest, ...grpc.CallOption) *product.PurchaseProductResponse); ok {
+		r0 = rf(ctx, in, opts...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*product.PurchaseProductResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *product.PurchaseProductRequest, ...grpc.CallOption) error); ok {
+		r1 = rf(ctx, in, opts...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // RetrieveProductByID provides a mock function with given fields: ctx, in, opts
 func (_m *ProductServiceClient) RetrieveProductByID(ctx context.Context, in *product.RetrieveProductByIDRequest, opts ...grpc.CallOption) (*product.RetrieveProductByIDResponse, error) {
 	_va := make([]interface{}, len(opts))

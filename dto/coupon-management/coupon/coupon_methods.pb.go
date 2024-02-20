@@ -15,6 +15,9 @@
 package coupon
 
 const (
-	CouponService_CreateCoupon     = "/pb.CouponService/CreateCoupon"
-	CouponService_DeleteCouponByID = "/pb.CouponService/DeleteCouponByID"
+	CouponService_CreateCoupon         = "/pb.CouponService/CreateCoupon"
+	CouponService_DeleteCouponByID     = "/pb.CouponService/DeleteCouponByID"
+	CouponService_RetrieveCouponByCode = "/pb.CouponService/RetrieveCouponByCode"
+	CouponService_ListUsedCoupon       = "/pb.CouponService/ListUsedCoupon"
+	CouponService_ApplyCoupon          = "/pb.CouponService/ApplyCoupon"
 )

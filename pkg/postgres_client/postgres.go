@@ -1,58 +1,44 @@
-// Package postgresclient ...
-package postgresclient
+package postgres_client
 
 import (
 	"context"
-	"fmt"
-	"log/slog"
-	"net/url"
-	"time"
+	"database/sql"
+	"log"
 
-	"github.com/jackc/pgx/v5/pgxpool"
-
-	"trintech/review/config"
+	_ "github.com/lib/pq"
 )
 
-// PostgresClient ...
+// PostgresClient is presentation for a custom client of postgres with [database/sql] based.
 type PostgresClient struct {
-	*pgxpool.Pool
-	DB *config.Database
+	*sql.DB
+	connectionString string
 }
 
-// Connect ...
+// New creates a new PostgresClient using the given connection string.
+func NewPostgresClient(connString string) *PostgresClient {
+	return &PostgresClient{
+		connectionString: connString,
+	}
+}
+
+// Connect implements postgres connection by [PostgresClient].
 func (c *PostgresClient) Connect(ctx context.Context) error {
-	connectionString := c.DB.Address()
-	u, err := url.Parse(connectionString)
+	var err error
+	c.DB, err = sql.Open("postgres", c.connectionString)
 	if err != nil {
-		return fmt.Errorf("cannot create new connection to Postgres (failed to parse URI): %w", err)
-	}
-	config, err := pgxpool.ParseConfig(connectionString)
-	if err != nil {
-		return fmt.Errorf("cannot read PG_CONNECTION_URI: %w", err)
+		return err
 	}
 
-	config.MaxConns = c.DB.MaxConnection
-	config.MaxConnIdleTime = 15 * time.Second
-	config.HealthCheckPeriod = 600 * time.Millisecond
-
-	slog.Info("NewConnectionPool max connection", "max connection", c.DB.MaxConnection)
-
-	pool, err := pgxpool.NewWithConfig(ctx, config)
-	if err != nil {
-		return fmt.Errorf(fmt.Sprintf("cannot create new connection to %q", u.Redacted()), err)
+	if err := c.DB.Ping(); err != nil {
+		return err
 	}
 
-	if err := pool.Ping(ctx); err != nil {
-		return fmt.Errorf("unable to connect postgres: %w", err)
-	}
-
-	c.Pool = pool
+	log.Println("connect postgres successful")
 
 	return nil
 }
 
-// Stop ...
-func (c *PostgresClient) Stop(_ context.Context) error {
-	c.Pool.Close()
-	return nil
+// Close implements close postgres connection by [PostgresClient]..
+func (c *PostgresClient) Close(ctx context.Context) error {
+	return c.DB.Close()
 }

@@ -16,6 +16,43 @@ type CouponServiceClient struct {
 	mock.Mock
 }
 
+// ApplyCoupon provides a mock function with given fields: ctx, in, opts
+func (_m *CouponServiceClient) ApplyCoupon(ctx context.Context, in *coupon.ApplyCouponRequest, opts ...grpc.CallOption) (*coupon.ApplyCouponResponse, error) {
+	_va := make([]interface{}, len(opts))
+	for _i := range opts {
+		_va[_i] = opts[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, in)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ApplyCoupon")
+	}
+
+	var r0 *coupon.ApplyCouponResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *coupon.ApplyCouponRequest, ...grpc.CallOption) (*coupon.ApplyCouponResponse, error)); ok {
+		return rf(ctx, in, opts...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *coupon.ApplyCouponRequest, ...grpc.CallOption) *coupon.ApplyCouponResponse); ok {
+		r0 = rf(ctx, in, opts...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*coupon.ApplyCouponResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *coupon.ApplyCouponRequest, ...grpc.CallOption) error); ok {
+		r1 = rf(ctx, in, opts...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // CreateCoupon provides a mock function with given fields: ctx, in, opts
 func (_m *CouponServiceClient) CreateCoupon(ctx context.Context, in *coupon.CreateCouponRequest, opts ...grpc.CallOption) (*coupon.CreateCouponResponse, error) {
 	_va := make([]interface{}, len(opts))
@@ -82,6 +119,80 @@ func (_m *CouponServiceClient) DeleteCouponByID(ctx context.Context, in *coupon.
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, *coupon.DeleteCouponByIDRequest, ...grpc.CallOption) error); ok {
+		r1 = rf(ctx, in, opts...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// ListUsedCoupon provides a mock function with given fields: ctx, in, opts
+func (_m *CouponServiceClient) ListUsedCoupon(ctx context.Context, in *coupon.ListUsedCouponRequest, opts ...grpc.CallOption) (*coupon.ListUsedCouponResponse, error) {
+	_va := make([]interface{}, len(opts))
+	for _i := range opts {
+		_va[_i] = opts[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, in)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListUsedCoupon")
+	}
+
+	var r0 *coupon.ListUsedCouponResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *coupon.ListUsedCouponRequest, ...grpc.CallOption) (*coupon.ListUsedCouponResponse, error)); ok {
+		return rf(ctx, in, opts...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *coupon.ListUsedCouponRequest, ...grpc.CallOption) *coupon.ListUsedCouponResponse); ok {
+		r0 = rf(ctx, in, opts...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*coupon.ListUsedCouponResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *coupon.ListUsedCouponRequest, ...grpc.CallOption) error); ok {
+		r1 = rf(ctx, in, opts...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// RetrieveCouponByCode provides a mock function with given fields: ctx, in, opts
+func (_m *CouponServiceClient) RetrieveCouponByCode(ctx context.Context, in *coupon.RetrieveCouponByCodeRequest, opts ...grpc.CallOption) (*coupon.RetrieveCouponByCodeResponse, error) {
+	_va := make([]interface{}, len(opts))
+	for _i := range opts {
+		_va[_i] = opts[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, in)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for RetrieveCouponByCode")
+	}
+
+	var r0 *coupon.RetrieveCouponByCodeResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *coupon.RetrieveCouponByCodeRequest, ...grpc.CallOption) (*coupon.RetrieveCouponByCodeResponse, error)); ok {
+		return rf(ctx, in, opts...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *coupon.RetrieveCouponByCodeRequest, ...grpc.CallOption) *coupon.RetrieveCouponByCodeResponse); ok {
+		r0 = rf(ctx, in, opts...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*coupon.RetrieveCouponByCodeResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *coupon.RetrieveCouponByCodeRequest, ...grpc.CallOption) error); ok {
 		r1 = rf(ctx, in, opts...)
 	} else {
 		r1 = ret.Error(1)

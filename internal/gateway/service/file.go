@@ -15,7 +15,6 @@ import (
 	pb "trintech/review/dto/storage-management/upload"
 	fileutil "trintech/review/pkg/file_util"
 	"trintech/review/pkg/http_server"
-	"trintech/review/pkg/http_server/xcontext"
 	"trintech/review/pkg/token_util"
 )
 
@@ -34,7 +33,7 @@ type UploadService interface {
 type uploadService struct {
 	fileUploadClient pb.UploadServiceClient
 
-	authenticator token_util.Authenticator[*xcontext.UserInfo]
+	authenticator token_util.JWTAuthenticator
 }
 
 // NewUploadService ...

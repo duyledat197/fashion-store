@@ -134,6 +134,36 @@ func (_m *ProductServiceServer) ListProduct(_a0 context.Context, _a1 *product.Li
 	return r0, r1
 }
 
+// PurchaseProduct provides a mock function with given fields: _a0, _a1
+func (_m *ProductServiceServer) PurchaseProduct(_a0 context.Context, _a1 *product.PurchaseProductRequest) (*product.PurchaseProductResponse, error) {
+	ret := _m.Called(_a0, _a1)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PurchaseProduct")
+	}
+
+	var r0 *product.PurchaseProductResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *product.PurchaseProductRequest) (*product.PurchaseProductResponse, error)); ok {
+		return rf(_a0, _a1)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *product.PurchaseProductRequest) *product.PurchaseProductResponse); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*product.PurchaseProductResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *product.PurchaseProductRequest) error); ok {
+		r1 = rf(_a0, _a1)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // RetrieveProductByID provides a mock function with given fields: _a0, _a1
 func (_m *ProductServiceServer) RetrieveProductByID(_a0 context.Context, _a1 *product.RetrieveProductByIDRequest) (*product.RetrieveProductByIDResponse, error) {
 	ret := _m.Called(_a0, _a1)

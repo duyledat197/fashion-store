@@ -1,14 +1,16 @@
 package entity
 
-import "time"
+import (
+	"database/sql"
+)
 
 type LoginHistory struct {
-	UserID      int64     `json:"user_id,omitempty"`
-	IP          string    `json:"ip,omitempty"`
-	UserAgent   string    `json:"user_agent,omitempty"`
-	AccessToken string    `json:"access_token,omitempty"`
-	LoginAt     time.Time `json:"login_at,omitempty"`
-	LogoutAt    time.Time `json:"log_out_at,omitempty"`
+	UserID      sql.NullInt64  `db:"user_id"`
+	IP          sql.NullString `db:"ip"`
+	UserAgent   sql.NullString `db:"user_agent"`
+	AccessToken sql.NullString `db:"access_token"`
+	LoginAt     sql.NullTime   `db:"login_at"`
+	LogoutAt    sql.NullTime   `db:"logout_at"`
 }
 
 func (u *LoginHistory) TableName() string {

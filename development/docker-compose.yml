@@ -31,7 +31,7 @@ services:
       - dev.env
     environment:
       PGDATA: /data/postgres
-      POSTGRES_MULTIPLE_DATABASES: user-management,product-management,coupon-management
+      POSTGRES_MULTIPLE_DATABASES: user-management,product-management,coupon-management,storage-management
       POSTGRES_DB: ${DB_NAME}
       DATABASE_HOST: ${DB_HOST}
       POSTGRES_USER: ${DB_USER}

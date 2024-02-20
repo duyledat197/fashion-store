@@ -14,6 +14,36 @@ type CouponServiceServer struct {
 	mock.Mock
 }
 
+// ApplyCoupon provides a mock function with given fields: _a0, _a1
+func (_m *CouponServiceServer) ApplyCoupon(_a0 context.Context, _a1 *coupon.ApplyCouponRequest) (*coupon.ApplyCouponResponse, error) {
+	ret := _m.Called(_a0, _a1)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ApplyCoupon")
+	}
+
+	var r0 *coupon.ApplyCouponResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *coupon.ApplyCouponRequest) (*coupon.ApplyCouponResponse, error)); ok {
+		return rf(_a0, _a1)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *coupon.ApplyCouponRequest) *coupon.ApplyCouponResponse); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*coupon.ApplyCouponResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *coupon.ApplyCouponRequest) error); ok {
+		r1 = rf(_a0, _a1)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // CreateCoupon provides a mock function with given fields: _a0, _a1
 func (_m *CouponServiceServer) CreateCoupon(_a0 context.Context, _a1 *coupon.CreateCouponRequest) (*coupon.CreateCouponResponse, error) {
 	ret := _m.Called(_a0, _a1)
@@ -66,6 +96,66 @@ func (_m *CouponServiceServer) DeleteCouponByID(_a0 context.Context, _a1 *coupon
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, *coupon.DeleteCouponByIDRequest) error); ok {
+		r1 = rf(_a0, _a1)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// ListUsedCoupon provides a mock function with given fields: _a0, _a1
+func (_m *CouponServiceServer) ListUsedCoupon(_a0 context.Context, _a1 *coupon.ListUsedCouponRequest) (*coupon.ListUsedCouponResponse, error) {
+	ret := _m.Called(_a0, _a1)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListUsedCoupon")
+	}
+
+	var r0 *coupon.ListUsedCouponResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *coupon.ListUsedCouponRequest) (*coupon.ListUsedCouponResponse, error)); ok {
+		return rf(_a0, _a1)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *coupon.ListUsedCouponRequest) *coupon.ListUsedCouponResponse); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*coupon.ListUsedCouponResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *coupon.ListUsedCouponRequest) error); ok {
+		r1 = rf(_a0, _a1)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// RetrieveCouponByCode provides a mock function with given fields: _a0, _a1
+func (_m *CouponServiceServer) RetrieveCouponByCode(_a0 context.Context, _a1 *coupon.RetrieveCouponByCodeRequest) (*coupon.RetrieveCouponByCodeResponse, error) {
+	ret := _m.Called(_a0, _a1)
+
+	if len(ret) == 0 {
+		panic("no return value specified for RetrieveCouponByCode")
+	}
+
+	var r0 *coupon.RetrieveCouponByCodeResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, *coupon.RetrieveCouponByCodeRequest) (*coupon.RetrieveCouponByCodeResponse, error)); ok {
+		return rf(_a0, _a1)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, *coupon.RetrieveCouponByCodeRequest) *coupon.RetrieveCouponByCodeResponse); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*coupon.RetrieveCouponByCodeResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, *coupon.RetrieveCouponByCodeRequest) error); ok {
 		r1 = rf(_a0, _a1)
 	} else {
 		r1 = ret.Error(1)

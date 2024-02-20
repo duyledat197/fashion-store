@@ -1,12 +1,14 @@
+// Package lru ...
 package lru
 
 import (
 	"context"
 	"fmt"
 	"time"
-	"trintech/review/pkg/cache"
 
 	"github.com/hashicorp/golang-lru/v2/expirable"
+
+	"trintech/review/pkg/cache"
 )
 
 // lru is presentation of implementing lru memories cache of [cache.Cache]
@@ -14,6 +16,7 @@ type lru[K comparable, V any] struct {
 	*expirable.LRU[K, V]
 }
 
+// NewLRU ...
 func NewLRU[K comparable, V any](size int, ttl time.Duration) cache.Cache[K, V] {
 	return &lru[K, V]{
 		expirable.NewLRU[K, V](size, nil, ttl),
@@ -22,9 +25,7 @@ func NewLRU[K comparable, V any](size int, ttl time.Duration) cache.Cache[K, V] 
 
 // Add is implementation of Add by [lru] in [cache.Cache]
 func (c *lru[K, V]) Add(_ context.Context, k K, v V) error {
-	if ok := c.LRU.Add(k, v); !ok {
-		return fmt.Errorf("unable to add value to lru")
-	}
+	c.LRU.Add(k, v)
 
 	return nil
 }

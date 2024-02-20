@@ -31,10 +31,10 @@ type config struct {
 	SuperAdminPassword string `mapstructure:"SUPER_ADMIN_PASSWORD"`
 }
 
-func LoadConfig(path string, env string) (*Config, error) {
+func LoadConfig(path string, service, env string) (*Config, error) {
 	var cfg config
 	viper.AddConfigPath(path)
-	viper.SetConfigName(env)
+	viper.SetConfigName(fmt.Sprintf("%s.%s", service, env))
 	viper.SetConfigType("env")
 
 	viper.AutomaticEnv()

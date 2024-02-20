@@ -21,4 +21,5 @@ const (
 	ProductService_UpdateProductByID   = "/pb.ProductService/UpdateProductByID"
 	ProductService_DeleteProductByID   = "/pb.ProductService/DeleteProductByID"
 	ProductService_DeleteProductByIDs  = "/pb.ProductService/DeleteProductByIDs"
+	ProductService_PurchaseProduct     = "/pb.ProductService/PurchaseProduct"
 )
