@@ -7,13 +7,12 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/spf13/cobra"
 
 	pb "trintech/review/dto/user-management/auth"
 	"trintech/review/internal/user-management/service"
 	"trintech/review/mocks"
-	"trintech/review/pkg/http_server"
+	"trintech/review/pkg/grpc_server"
 	"trintech/review/pkg/postgres_client"
 )
 
@@ -60,13 +59,10 @@ func loadUserManagement(ctx context.Context) {
 
 	service := service.NewAuthService(pgClient, &mocks.Publisher{}, tokenGenerator)
 
-	server := http_server.NewHttpServer(func(mux *runtime.ServeMux) {
-		pb.RegisterAuthServiceHandlerServer(ctx, mux, service)
-	},
-		cfgs.HTTP,
-		tokenGenerator,
-	)
+	srv := grpc_server.NewGrpcServer(cfgs.UserService)
+
+	pb.RegisterAuthServiceServer(srv.Server, service)
 
 	factories = append(factories, pgClient)
-	processors = append(processors, server)
+	processors = append(processors, srv)
 }

@@ -51,29 +51,29 @@ func (_m *UserCouponRepository) DeleteByCouponID(ctx context.Context, db databas
 	return r0
 }
 
-// RetrieveByCouponID provides a mock function with given fields: ctx, db, couponID
-func (_m *UserCouponRepository) RetrieveByCouponID(ctx context.Context, db database.Executor, couponID int64) (*entity.UserCoupon, error) {
-	ret := _m.Called(ctx, db, couponID)
+// RetrieveByCouponIDUserID provides a mock function with given fields: ctx, db, couponID, userID
+func (_m *UserCouponRepository) RetrieveByCouponIDUserID(ctx context.Context, db database.Executor, couponID int64, userID int64) (*entity.UserCoupon, error) {
+	ret := _m.Called(ctx, db, couponID, userID)
 
 	if len(ret) == 0 {
-		panic("no return value specified for RetrieveByCouponID")
+		panic("no return value specified for RetrieveByCouponIDUserID")
 	}
 
 	var r0 *entity.UserCoupon
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, database.Executor, int64) (*entity.UserCoupon, error)); ok {
-		return rf(ctx, db, couponID)
+	if rf, ok := ret.Get(0).(func(context.Context, database.Executor, int64, int64) (*entity.UserCoupon, error)); ok {
+		return rf(ctx, db, couponID, userID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, database.Executor, int64) *entity.UserCoupon); ok {
-		r0 = rf(ctx, db, couponID)
+	if rf, ok := ret.Get(0).(func(context.Context, database.Executor, int64, int64) *entity.UserCoupon); ok {
+		r0 = rf(ctx, db, couponID, userID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*entity.UserCoupon)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, database.Executor, int64) error); ok {
-		r1 = rf(ctx, db, couponID)
+	if rf, ok := ret.Get(1).(func(context.Context, database.Executor, int64, int64) error); ok {
+		r1 = rf(ctx, db, couponID, userID)
 	} else {
 		r1 = ret.Error(1)
 	}

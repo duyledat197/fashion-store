@@ -10,9 +10,12 @@ type Config struct {
 	PostgresDB *Database
 	HTTP       *Endpoint
 
-	SymetricKey        string
-	SuperAdminUsername string
-	SuperAdminPassword string
+	UserService    *Endpoint
+	ProductService *Endpoint
+	CouponService  *Endpoint
+	GatewayService *Endpoint
+
+	SymetricKey string
 }
 
 type config struct {
@@ -22,13 +25,19 @@ type config struct {
 	DBPassword string `mapstructure:"DB_PASSWORD"`
 	DBDatabase string `mapstructure:"DB_NAME"`
 
-	HTTPHost string `mapstructure:"HTTP_HOST"`
-	HTTPPort string `mapstructure:"HTTP_PORT"`
+	UserGRPCHost string `mapstructure:"USER_GRPC_HOST"`
+	UserGRPCPort string `mapstructure:"USER_GRPC_PORT"`
+
+	ProductGRPCHost string `mapstructure:"PRODUCT_GRPC_HOST"`
+	ProductGRPCPort string `mapstructure:"PRODUCT_GRPC_PORT"`
+
+	CouponGRPCHost string `mapstructure:"COUPON_GRPC_HOST"`
+	CouponGRPCPort string `mapstructure:"COUPON_GRPC_PORT"`
+
+	GatewayGRPCHost string `mapstructure:"GATEWAY_GRPC_HOST"`
+	GatewayGRPCPort string `mapstructure:"GATEWAY_GRPC_PORT"`
 
 	SymetricKey string `mapstructure:"SYMETRIC_KEY"`
-
-	SuperAdminUsername string `mapstructure:"SUPER_ADMIN_USERNAME"`
-	SuperAdminPassword string `mapstructure:"SUPER_ADMIN_PASSWORD"`
 }
 
 func LoadConfig(path string, service, env string) (*Config, error) {
@@ -55,12 +64,24 @@ func LoadConfig(path string, service, env string) (*Config, error) {
 			Password: cfg.DBPassword,
 			Database: cfg.DBDatabase,
 		},
-		HTTP: &Endpoint{
-			Host: cfg.HTTPHost,
-			Port: cfg.HTTPPort,
+		UserService: &Endpoint{
+			Host: cfg.UserGRPCHost,
+			Port: cfg.UserGRPCPort,
 		},
-		SymetricKey:        cfg.SymetricKey,
-		SuperAdminUsername: cfg.SuperAdminUsername,
-		SuperAdminPassword: cfg.SuperAdminPassword,
+
+		ProductService: &Endpoint{
+			Host: cfg.ProductGRPCHost,
+			Port: cfg.ProductGRPCPort,
+		},
+
+		CouponService: &Endpoint{
+			Host: cfg.CouponGRPCHost,
+			Port: cfg.CouponGRPCPort,
+		},
+		GatewayService: &Endpoint{
+			Host: cfg.GatewayGRPCHost,
+			Port: cfg.GatewayGRPCPort,
+		},
+		SymetricKey: cfg.SymetricKey,
 	}, nil
 }

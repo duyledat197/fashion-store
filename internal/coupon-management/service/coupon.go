@@ -4,8 +4,10 @@ package service
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"slices"
+	"time"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -13,6 +15,7 @@ import (
 
 	pb "trintech/review/dto/coupon-management/coupon"
 	"trintech/review/internal/coupon-management/entity"
+	"trintech/review/internal/coupon-management/repository/postgres"
 	userEntity "trintech/review/internal/user-management/entity"
 	"trintech/review/pkg/crypto_util"
 	"trintech/review/pkg/database"
@@ -31,7 +34,7 @@ type couponService struct {
 	userCouponRepo interface {
 		Create(ctx context.Context, db database.Executor, data *entity.UserCoupon) error
 		DeleteByCouponID(ctx context.Context, db database.Executor, id int64) error
-		RetrieveByCouponID(ctx context.Context, db database.Executor, couponID int64) (*entity.UserCoupon, error)
+		RetrieveByCouponIDUserID(ctx context.Context, db database.Executor, couponID, userID int64) (*entity.UserCoupon, error)
 	}
 
 	productCouponRepo interface {
@@ -42,10 +45,21 @@ type couponService struct {
 
 	usedCouponRepo interface {
 		ListUsedCouponByUserID(ctx context.Context, db database.Executor, userID int64) ([]*entity.CouponUsedCoupon, error)
+		Create(ctx context.Context, db database.Executor, data *entity.UsedCoupon) error
 	}
 
 	db database.Database
 	pb.UnimplementedCouponServiceServer
+}
+
+func NewCouponService(db database.Database) pb.CouponServiceServer {
+	return &couponService{
+		db:                db,
+		couponRepo:        postgres.NewCouponRepository(),
+		productCouponRepo: postgres.NewProductCouponRepository(),
+		userCouponRepo:    postgres.NewUserCouponRepository(),
+		usedCouponRepo:    postgres.NewUsedCouponRepository(),
+	}
 }
 
 func validAdmin(ctx context.Context) (*xcontext.UserInfo, error) {
@@ -71,13 +85,17 @@ func (s *couponService) CreateCoupon(ctx context.Context, req *pb.CreateCouponRe
 
 	if err := database.Transaction(ctx, s.db, func(ctx context.Context, tx *sql.Tx) error {
 		id, err = s.couponRepo.Create(ctx, tx, &entity.Coupon{
-			Code:        pg_util.NullString(crypto_util.GenerateCode("COUPON")),
-			From:        pg_util.NullTime(req.From.AsTime()),
-			To:          pg_util.NullTime(req.To.AsTime()),
-			Rules:       req.GetRules(),
-			Description: pg_util.NullString(req.GetDescription()),
-			ImageURL:    pg_util.NullString(req.GetImageUrl()),
-			CreatedBy:   pg_util.NullInt64(userCtx.UserID),
+			Code:         pg_util.NullString(crypto_util.GenerateCode("COUPON")),
+			From:         pg_util.NullTime(req.From.AsTime()),
+			To:           pg_util.NullTime(req.To.AsTime()),
+			Description:  pg_util.NullString(req.GetDescription()),
+			ImageURL:     pg_util.NullString(req.GetImageUrl()),
+			CreatedBy:    pg_util.NullInt64(userCtx.UserID),
+			Value:        pg_util.NullFloat64(req.GetValue()),
+			Total:        pg_util.NullInt64(req.GetTotal()),
+			CreatedAt:    pg_util.NullTime(time.Now()),
+			Type:         pg_util.NullString(req.GetType().String()),
+			DiscountType: pg_util.NullString(req.GetDiscountType().String()),
 		})
 		if err != nil {
 			return fmt.Errorf("unable to create coupon: %w", err)
@@ -128,32 +146,41 @@ func (s *couponService) RetrieveCouponByCode(ctx context.Context, req *pb.Retrie
 		return nil, status.Errorf(codes.Internal, "unable to retrieve coupon by code: %v", err.Error())
 	}
 
-	switch coupon.Type.String {
-	case pb.CouponType_CouponType_LIMITED.String():
-		if coupon.Used.Int64 >= coupon.Total.Int64 {
+	if req.GetCheckUse() {
+		now := time.Now()
+		if coupon.From.Time.After(now) || coupon.To.Time.Before(now) {
 			return &pb.RetrieveCouponByCodeResponse{
 				CanUse: false,
 			}, nil
 		}
-	case pb.CouponType_CouponType_USER.String():
-		userCoupon, err := s.userCouponRepo.RetrieveByCouponID(ctx, s.db, coupon.ID.Int64)
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "unable to retrieve user coupon : %v", err.Error())
-		}
-		if userCoupon.Used.Int64 >= userCoupon.Total.Int64 {
-			return &pb.RetrieveCouponByCodeResponse{
-				CanUse: false,
-			}, nil
-		}
-	case pb.CouponType_CouponType_PRODUCT.String():
-		productCoupon, err := s.productCouponRepo.RetrieveByCouponID(ctx, s.db, coupon.ID.Int64)
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "unable to retrieve user coupon : %v", err.Error())
-		}
-		if productCoupon.Used.Int64 >= productCoupon.Total.Int64 {
-			return &pb.RetrieveCouponByCodeResponse{
-				CanUse: false,
-			}, nil
+
+		switch coupon.Type.String {
+		case pb.CouponType_CouponType_LIMITED.String():
+			if coupon.Used.Int64 >= coupon.Total.Int64 {
+				return &pb.RetrieveCouponByCodeResponse{
+					CanUse: false,
+				}, nil
+			}
+		case pb.CouponType_CouponType_USER.String():
+			userCoupon, err := s.userCouponRepo.RetrieveByCouponIDUserID(ctx, s.db, coupon.ID.Int64, req.UserId.Value)
+			if err != nil {
+				return nil, status.Errorf(codes.Internal, "unable to retrieve user coupon : %v", err.Error())
+			}
+			if userCoupon.Used.Int64 >= userCoupon.Total.Int64 {
+				return &pb.RetrieveCouponByCodeResponse{
+					CanUse: false,
+				}, nil
+			}
+		case pb.CouponType_CouponType_PRODUCT.String():
+			productCoupon, err := s.productCouponRepo.RetrieveByCouponID(ctx, s.db, coupon.ID.Int64)
+			if err != nil {
+				return nil, status.Errorf(codes.Internal, "unable to retrieve user coupon : %v", err.Error())
+			}
+			if productCoupon.Used.Int64 >= productCoupon.Total.Int64 {
+				return &pb.RetrieveCouponByCodeResponse{
+					CanUse: false,
+				}, nil
+			}
 		}
 	}
 
@@ -164,7 +191,6 @@ func (s *couponService) RetrieveCouponByCode(ctx context.Context, req *pb.Retrie
 		To:           timestamppb.New(coupon.To.Time),
 		ImageUrl:     coupon.ImageURL.String,
 		Description:  coupon.Description.String,
-		Rules:        coupon.Rules,
 		DiscountType: new(pb.DiscountType).FromString(coupon.DiscountType.String),
 		Value:        coupon.Value.Float64,
 		Used:         coupon.Used.Int64,
@@ -195,4 +221,30 @@ func (s *couponService) ListUsedCoupon(ctx context.Context, _ *pb.ListUsedCoupon
 	return &pb.ListUsedCouponResponse{
 		Data: respData,
 	}, nil
+}
+
+func (s *couponService) ApplyCoupon(ctx context.Context, req *pb.ApplyCouponRequest) (*pb.ApplyCouponResponse, error) {
+	userCtx, ok := http_server.ExtractUserInfoFromCtx(ctx)
+	if !ok {
+		return nil, status.Errorf(codes.PermissionDenied, "user doesn't have permission")
+	}
+
+	coupon, err := s.couponRepo.RetrieveByCode(ctx, s.db, req.GetCode())
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, status.Errorf(codes.NotFound, "coupon not found")
+		}
+
+		return nil, status.Errorf(codes.Internal, "unable to retrieve coupon by code: %v", err.Error())
+	}
+
+	if err := s.usedCouponRepo.Create(ctx, s.db, &entity.UsedCoupon{
+		CouponID:  coupon.ID,
+		UserID:    pg_util.NullInt64(userCtx.UserID),
+		CreatedAt: pg_util.NullTime(time.Now()),
+	}); err != nil {
+		return nil, status.Errorf(codes.Internal, "unable to create used coupon: %v", err.Error())
+	}
+
+	return &pb.ApplyCouponResponse{}, nil
 }

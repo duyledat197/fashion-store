@@ -1,68 +1,28 @@
-# Money Forward interview
+# Trintech interview
 
 ## Requirements
-The server api should serve for this endpoints:
-
-* `GET /users/{id}`
-* `GET /users/{id}/accounts`
-* `GET /accounts/{id}`
-  
-
-All endpoints should return json payloads matching the following criteria.
-`/users/{id}`: A detail of `users` including list `account_ids` that have been owned by the user that are equal to the passing `{id}` from the database.
-
-Example:
-```json
-{
-  "id": 1,
-  "name": "Alice",
-  "account_ids": [
-    1,
-    3,
-    5,
-    ...
-  ]
-}
-
-``` 
-
-`/users/{id}/accounts`: A list detail of `accounts` that have been owned by the user that are equal to the passing `{id}` from the database.
-
-Example:
-```json
-[
-  {
-    "id": 1,
-    "user_id": 1,
-    "name": "A銀行",
-    "balance": 20000
-  },
-  {
-    "id": 3,
-    "user_id": 1,
-    "name": "C信用金庫",
-    "balance": 120000
-  },
-  {
-    "id": 5,
-    "user_id": 1,
-    "name": "E銀行",
-    "balance": 5000
-  },
-  ...
-]
-``` 
-`/accounts/{id}`: A detail of `accounts` that are equal to the passing `{id}` from the database.
-
-Example:
-```json
-{
-  "id": 2,
-  "user_id": 2,
-  "name": "Bカード",
-  "balance": 200
-}
-``` 
+Develop Golang APIs for fashion store (shirt and jeans) has
+following features:
+-[x] Authentication
+-[x] Login/logout
+-[x] Forgot password
+-[x] Register new account
+-[x] Add new fashion product with appropriate informations such
+as:
+- Product name
+- Product type
+- Product image/images (with Object Storage)
+- Product price
+- Product description
+- ...
+- Update a specific fashion with id.
+- Delete specific fashion with id or array of ids.
+- Sales
+- Simple sales flow that allows shop owners to set sale
+coupons for a single product.
+- Users can buy a product with a sales coupon.
+- Logging system (to files) for every action that will occur
+inside of this system.
 
 ## Features (the APIs that not occurs in requirements):
 

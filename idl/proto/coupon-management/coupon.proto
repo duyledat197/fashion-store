@@ -75,7 +75,7 @@ message CreateCouponRequest {
   bytes rules = 9;
   DiscountType discount_type = 10 [ (validate.rules).enum.defined_only = true ];
 
-  int64 value = 11;
+  double value = 11;
   int64 used = 12;
 }
 
@@ -91,6 +91,7 @@ message DeleteCouponByIDResponse {}
 message RetrieveCouponByCodeRequest {
   string code = 1;
   bool check_use = 2;
+  google.protobuf.Int64Value user_id = 3;
 }
 
 message RetrieveCouponByCodeResponse {

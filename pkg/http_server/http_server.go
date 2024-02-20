@@ -18,7 +18,6 @@ type middlewareFunc func(http.Handler) http.Handler
 
 type HttpServer struct {
 	*http.Server
-	mux *runtime.ServeMux
 	cfg *config.Endpoint
 }
 
@@ -43,22 +42,22 @@ func NewHttpServer(
 	slices.Reverse(middlewares)
 
 	var handleR http.Handler = mux
-	for _, handle := range middlewares {
-		handleR = handle(handleR)
-	}
+	// for _, handle := range middlewares {
+	// 	handleR = handle(handleR)
+	// }
 
 	return &HttpServer{
-		mux: mux,
 		cfg: cfg,
+		Server: &http.Server{
+			Addr:    cfg.Address(),
+			Handler: handleR,
+		},
 	}
 }
 
 func (s *HttpServer) Start(ctx context.Context) error {
 	slog.Info("Server listening in port", "port", s.cfg.Port)
-	s.Server = &http.Server{
-		Addr:    s.cfg.Address(),
-		Handler: s.mux,
-	}
+
 	if err := s.Server.ListenAndServe(); err != nil {
 		return err
 	}

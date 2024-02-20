@@ -6,10 +6,15 @@ import (
 	"strings"
 
 	"trintech/review/internal/product-management/entity"
+	"trintech/review/internal/product-management/repository"
 	"trintech/review/pkg/database"
 )
 
 type purchasedProductRepository struct {
+}
+
+func NewPurchasedProductRepository() repository.PurchasedProductRepository {
+	return &purchasedProductRepository{}
 }
 
 func (r *purchasedProductRepository) Create(ctx context.Context, db database.Executor, data *entity.PurchasedProduct) error {
@@ -19,11 +24,9 @@ func (r *purchasedProductRepository) Create(ctx context.Context, db database.Exe
 	stmt := fmt.Sprintf(`
 		INSERT INTO %s(%s)
 		VALUES(%s)
-		RETURNING id
 	`, data.TableName(), strings.Join(fieldNames, ","), placeHolders)
-	var id int64
 
-	if err := db.QueryRowContext(ctx, stmt, values...).Scan(&id); err != nil {
+	if _, err := db.ExecContext(ctx, stmt, values...); err != nil {
 		return err
 	}
 

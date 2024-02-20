@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS products(
 );
 
 CREATE TABLE IF NOT EXISTS purchased_products(
-  "product_id" serial PRIMARY KEY,
+  "product_id" bigint REFERENCES products("id"),
   "user_id" bigint,
   "price" float8,
   "discount" float8,
@@ -23,4 +23,6 @@ CREATE TABLE IF NOT EXISTS purchased_products(
 );
 
 CREATE INDEX IF NOT EXISTS purchased_products_user_id_idx ON purchased_products(user_id);
+
+CREATE INDEX IF NOT EXISTS purchased_products_product_id_idx ON purchased_products(product_id);
 

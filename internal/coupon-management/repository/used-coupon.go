@@ -9,4 +9,5 @@ import (
 
 type UsedCouponRepository interface {
 	ListUsedCouponByUserID(ctx context.Context, db database.Executor, userID int64) ([]*entity.CouponUsedCoupon, error)
+	Create(ctx context.Context, db database.Executor, data *entity.UsedCoupon) error
 }

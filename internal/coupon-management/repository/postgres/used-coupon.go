@@ -67,3 +67,19 @@ func (r *usedCouponRepository) ListUsedCouponByUserID(ctx context.Context, db da
 
 	return result, nil
 }
+
+func (r *usedCouponRepository) Create(ctx context.Context, db database.Executor, data *entity.UsedCoupon) error {
+	fieldNames, values := database.FieldMap(data)
+	placeHolders := database.GetPlaceholders(len(fieldNames))
+
+	stmt := fmt.Sprintf(`
+		INSERT INTO %s(%s)
+		VALUES(%s)
+	`, data.TableName(), strings.Join(fieldNames, ","), placeHolders)
+
+	if _, err := db.ExecContext(ctx, stmt, values...); err != nil {
+		return err
+	}
+
+	return nil
+}

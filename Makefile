@@ -20,9 +20,13 @@ start-adminer:
 
 start-user:
 	SERVICE=user-management ENV=dev go run main.go userManagement
-
 start-product:
 	SERVICE=product-management ENV=dev go run main.go productManagement
+start-gateway:
+	SERVICE=gateway ENV=dev go run main.go gateway
+start-coupon:
+	SERVICE=coupon-management ENV=dev go run main.go couponManagement
+
 
 run:
 	./developments/start.sh

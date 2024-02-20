@@ -5,15 +5,16 @@ package cmd
 
 import (
 	"context"
+	"log"
 	"log/slog"
 
-	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/spf13/cobra"
 
+	couponpb "trintech/review/dto/coupon-management/coupon"
 	pb "trintech/review/dto/product-management/product"
 	"trintech/review/internal/product-management/service"
-	"trintech/review/mocks"
-	"trintech/review/pkg/http_server"
+	"trintech/review/pkg/grpc_client"
+	"trintech/review/pkg/grpc_server"
 	"trintech/review/pkg/postgres_client"
 )
 
@@ -55,18 +56,18 @@ func init() {
 	// productManagementCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-func loadProductManagement(ctx context.Context) {
+func loadProductManagement(_ context.Context) {
 	pgClient := postgres_client.NewPostgresClient(cfgs.PostgresDB.Address())
+	couponClientConn := grpc_client.NewGrpcClient(cfgs.CouponService)
+	couponClient := couponpb.NewCouponServiceClient(couponClientConn)
 
-	service := service.NewProductService(pgClient, &mocks.CouponServiceClient{})
+	log.Println(cfgs.CouponService.Address())
+	service := service.NewProductService(pgClient, couponClient)
 
-	server := http_server.NewHttpServer(func(mux *runtime.ServeMux) {
-		pb.RegisterProductServiceHandlerServer(ctx, mux, service)
-	},
-		cfgs.HTTP,
-		tokenGenerator,
-	)
+	srv := grpc_server.NewGrpcServer(cfgs.ProductService)
 
-	factories = append(factories, pgClient)
-	processors = append(processors, server)
+	pb.RegisterProductServiceServer(srv.Server, service)
+
+	factories = append(factories, pgClient, couponClientConn)
+	processors = append(processors, srv)
 }

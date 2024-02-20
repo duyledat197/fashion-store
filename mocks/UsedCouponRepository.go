@@ -15,6 +15,24 @@ type UsedCouponRepository struct {
 	mock.Mock
 }
 
+// Create provides a mock function with given fields: ctx, db, data
+func (_m *UsedCouponRepository) Create(ctx context.Context, db database.Executor, data *entity.UsedCoupon) error {
+	ret := _m.Called(ctx, db, data)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Create")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, database.Executor, *entity.UsedCoupon) error); ok {
+		r0 = rf(ctx, db, data)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // ListUsedCouponByUserID provides a mock function with given fields: ctx, db, userID
 func (_m *UsedCouponRepository) ListUsedCouponByUserID(ctx context.Context, db database.Executor, userID int64) ([]*entity.CouponUsedCoupon, error) {
 	ret := _m.Called(ctx, db, userID)

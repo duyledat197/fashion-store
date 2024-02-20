@@ -55,7 +55,8 @@ service ProductService {
   rpc PurchaseProduct(PurchaseProductRequest)
       returns (PurchaseProductResponse) {
     option (google.api.http) = {
-      put : "/v1/products/{id}/purchase"
+      put : "/v1/products/{id}/purchase",
+      body : "*"
     };
   }
 }

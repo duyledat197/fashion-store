@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log"
 	"strings"
 
 	"trintech/review/internal/coupon-management/entity"
@@ -25,12 +26,12 @@ func (r *couponRepository) Create(ctx context.Context, db database.Executor, dat
 	placeHolders := database.GetPlaceholders(len(fieldNames))
 
 	stmt := fmt.Sprintf(`
-		INSERT INTO %s(%s)
+		INSERT INTO %s("%s")
 		VALUES(%s)
 		RETURNING id
-	`, data.TableName(), strings.Join(fieldNames, ","), placeHolders)
+	`, data.TableName(), strings.Join(fieldNames, "\",\""), placeHolders)
 	var id int64
-
+	log.Println(stmt)
 	if err := db.QueryRowContext(ctx, stmt, values...).Scan(&id); err != nil {
 		return 0, err
 	}
@@ -65,10 +66,10 @@ func (r *couponRepository) RetrieveByCode(ctx context.Context, db database.Execu
 	e := &entity.Coupon{}
 	fieldNames, values := database.FieldMap(e)
 	stmt := fmt.Sprintf(`
-		SELECT %s
+		SELECT "%s"
 		FROM %s
 		WHERE code = $1
-	`, strings.Join(fieldNames, ","), e.TableName())
+	`, strings.Join(fieldNames, "\",\""), e.TableName())
 
 	if err := db.QueryRowContext(ctx, stmt, &code).Scan(values...); err != nil {
 		return nil, err

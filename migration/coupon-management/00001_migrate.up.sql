@@ -1,28 +1,27 @@
 CREATE TYPE coupon_type AS ENUM(
-  'USER',
-  'PRODUCT',
-  'LIMITED'
+  'CouponType_USER',
+  'CouponType_PRODUCT',
+  'CouponType_LIMITED'
 );
 
 CREATE TYPE discount_coupon_type AS ENUM(
-  'PERCENT',
-  'VALUE',
-  'LIMITED'
+  'DiscountType_PERCENT',
+  'DiscountType_VALUE'
 );
 
 --  create coupon table
 CREATE TABLE IF NOT EXISTS coupons(
-  "id" bigint PRIMARY KEY,
+  "id" serial PRIMARY KEY,
   "code" text UNIQUE,
   "from" timestamptz,
   "to" timestamptz,
-  "rules" jsonb,
   "icon_url" text,
   "description" text,
   "used" bigint,
   "total" bigint,
   "value" float8,
-  "discount_coupon_type" discount_coupon_type,
+  "image_url" text,
+  "discount_type" discount_coupon_type,
   "coupon_type" coupon_type,
   "created_by" bigint,
   "created_at" timestamptz DEFAULT now(),
@@ -65,11 +64,10 @@ CREATE INDEX IF NOT EXISTS user_coupons_user_id_idx ON user_coupons(user_id);
 CREATE TABLE IF NOT EXISTS used_coupons(
   "coupon_id" bigint REFERENCES coupons("id"),
   "user_id" bigint,
-  "type" used_coupon_type,
+  "type" coupon_type,
   "created_by" bigint,
   "created_at" timestamptz DEFAULT now(),
-  "updated_at" timestamptz DEFAULT now(),
-  PRIMARY KEY ("coupon_id", "user_id")
+  "updated_at" timestamptz DEFAULT now()
 );
 
 CREATE INDEX IF NOT EXISTS used_coupons_coupon_id_idx ON used_coupons(coupon_id);

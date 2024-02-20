@@ -13,9 +13,8 @@ type Coupon struct {
 	To           sql.NullTime    `db:"to"`
 	Used         sql.NullInt64   `db:"used"`
 	Total        sql.NullInt64   `db:"total"`
-	Type         sql.NullString  `db:"type"`
+	Type         sql.NullString  `db:"coupon_type"`
 	Value        sql.NullFloat64 `db:"value"`
-	Rules        []byte          `db:"rules"`
 	ImageURL     sql.NullString  `db:"image_url"`
 	Description  sql.NullString  `db:"description"`
 	DiscountType sql.NullString  `db:"discount_type"`

@@ -11,6 +11,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	couponpb "trintech/review/dto/coupon-management/coupon"
 	pb "trintech/review/dto/product-management/product"
@@ -52,9 +53,10 @@ func NewProductService(
 	couponServiceClient couponpb.CouponServiceClient,
 ) pb.ProductServiceServer {
 	return &productService{
-		db:                  db,
-		couponServiceClient: couponServiceClient,
-		productRepo:         postgres.NewProductRepository(),
+		db:                   db,
+		couponServiceClient:  couponServiceClient,
+		productRepo:          postgres.NewProductRepository(),
+		purchasedProductRepo: postgres.NewPurchasedProductRepository(),
 	}
 }
 
@@ -219,6 +221,7 @@ func (s *productService) PurchaseProduct(ctx context.Context, req *pb.PurchasePr
 		coupon, err := s.couponServiceClient.RetrieveCouponByCode(http_server.InjectIncomingCtxToOutgoingCtx(ctx), &couponpb.RetrieveCouponByCodeRequest{
 			Code:     req.GetCoupon().GetValue(),
 			CheckUse: true,
+			UserId:   wrapperspb.Int64(userCtx.UserID),
 		})
 		if err != nil {
 			stt, _ := status.FromError(err)
@@ -250,6 +253,8 @@ func (s *productService) PurchaseProduct(ctx context.Context, req *pb.PurchasePr
 			UserID:    pg_util.NullInt64(userCtx.UserID),
 			Price:     product.Price,
 			Discount:  pg_util.NullFloat64(discountTotal),
+			Total:     pg_util.NullFloat64(max(0, discountTotal)),
+			Coupon:    pg_util.NullString(req.GetCoupon().Value),
 		}); err != nil {
 			return fmt.Errorf("unable to create purchase product: %v", err)
 		}
