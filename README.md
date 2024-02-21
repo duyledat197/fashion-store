@@ -358,12 +358,16 @@ I already set up variables for develop environment.So we no need do anything.
 ![image](./docs/flows/reset_password.svg)
 ### Login flow:
 ![image](./docs/flows/login.svg)
-### Fsnctional relation of user flow:
+### Functional relation of user flow:
 ![image](./docs/flows/functional_relation.svg)
 
 ## Conclusion:
 I was do many things and features, so i don't have many time for done at all. If i have more time what i will do:
-- [] Build transaction between multi-services (using saga architecture).
-- [] Develop wallet features for user.
-- [] Done notification service includes send email flow.
-- [] Done upload service includes upload files flow.
+
+- [ ] Build transaction between multi-services (using saga architecture).
+- [ ] Develop wallet features for user.
+- [ ] Done notification service includes send email flow.
+- [ ] Done upload service includes upload files flow.
+- [ ] Verify logout token in Gateway service.
+- [ ] Caching user token logout in Gateway service to optimization.
+
