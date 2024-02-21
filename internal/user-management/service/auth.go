@@ -41,7 +41,7 @@ type authService struct {
 
 	loginHistoryRepo interface {
 		Create(context.Context, database.Executor, *entity.LoginHistory) error
-		UpdateLogout(ctx context.Context, db database.Executor, accessToken string) error
+		UpdateLogout(ctx context.Context, db database.Executor, userID int64, accessToken string) error
 	}
 
 	userCacheRepo interface {
@@ -188,12 +188,11 @@ func (s *authService) Login(ctx context.Context, req *pb.LoginRequest) (*pb.Logi
 }
 
 func (s *authService) Logout(ctx context.Context, _ *emptypb.Empty) (*pb.LogoutResponse, error) {
-	session, err := xcontext.ExtractSessionFromContext(ctx)
-	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "unable to logout history: %v", err.Error())
-	}
+	session := http_server.ExtractSessionFromCtx(ctx)
 
-	if err := s.loginHistoryRepo.UpdateLogout(ctx, s.db, session.AccessToken); err != nil {
+	userCtx, _ := http_server.ExtractUserInfoFromCtx(ctx)
+
+	if err := s.loginHistoryRepo.UpdateLogout(ctx, s.db, userCtx.UserID, session.AccessToken); err != nil {
 		return nil, status.Errorf(codes.Internal, "unable to update logout: %v", err.Error())
 	}
 

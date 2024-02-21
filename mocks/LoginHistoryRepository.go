@@ -33,17 +33,17 @@ func (_m *LoginHistoryRepository) Create(ctx context.Context, db database.Execut
 	return r0
 }
 
-// UpdateLogout provides a mock function with given fields: ctx, db, accessToken
-func (_m *LoginHistoryRepository) UpdateLogout(ctx context.Context, db database.Executor, accessToken string) error {
-	ret := _m.Called(ctx, db, accessToken)
+// UpdateLogout provides a mock function with given fields: ctx, db, userID, accessToken
+func (_m *LoginHistoryRepository) UpdateLogout(ctx context.Context, db database.Executor, userID int64, accessToken string) error {
+	ret := _m.Called(ctx, db, userID, accessToken)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdateLogout")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, database.Executor, string) error); ok {
-		r0 = rf(ctx, db, accessToken)
+	if rf, ok := ret.Get(0).(func(context.Context, database.Executor, int64, string) error); ok {
+		r0 = rf(ctx, db, userID, accessToken)
 	} else {
 		r0 = ret.Error(0)
 	}

@@ -10,5 +10,5 @@ import (
 // LoginHistoryRepository ...
 type LoginHistoryRepository interface {
 	Create(ctx context.Context, db database.Executor, data *entity.LoginHistory) error
-	UpdateLogout(ctx context.Context, db database.Executor, accessToken string) error
+	UpdateLogout(ctx context.Context, db database.Executor, userID int64, accessToken string) error
 }

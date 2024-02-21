@@ -248,28 +248,34 @@ func (s *productService) PurchaseProduct(ctx context.Context, req *pb.PurchasePr
 	}
 
 	if err := database.Transaction(ctx, s.db, func(ctx context.Context, tx *sql.Tx) error {
-		if err := s.purchasedProductRepo.Create(ctx, tx, &entity.PurchasedProduct{
+		purchaseProduct := &entity.PurchasedProduct{
 			ProductID: product.ID,
 			UserID:    pg_util.NullInt64(userCtx.UserID),
 			Price:     product.Price,
 			Discount:  pg_util.NullFloat64(discountTotal),
 			Total:     pg_util.NullFloat64(max(0, discountTotal)),
-			Coupon:    pg_util.NullString(req.GetCoupon().Value),
-		}); err != nil {
+		}
+		if req.GetCoupon() != nil {
+			purchaseProduct.Coupon = pg_util.NullString(req.GetCoupon().Value)
+		}
+
+		if err := s.purchasedProductRepo.Create(ctx, tx, purchaseProduct); err != nil {
 			return fmt.Errorf("unable to create purchase product: %v", err)
 		}
 
-		if _, err := s.couponServiceClient.ApplyCoupon(http_server.InjectIncomingCtxToOutgoingCtx(ctx), &couponpb.ApplyCouponRequest{
-			Code: req.Coupon.Value,
-		}); err != nil {
-			stt, _ := status.FromError(err)
-			switch stt.Code() {
-			case codes.NotFound:
-				return status.Errorf(codes.NotFound, "coupon not found")
-			case codes.FailedPrecondition:
-				return status.Errorf(codes.FailedPrecondition, "unable to apply this coupon")
-			default:
-				return status.Errorf(codes.Internal, "unable to apply this coupon: %v", err.Error())
+		if req.GetCoupon() != nil {
+			if _, err := s.couponServiceClient.ApplyCoupon(http_server.InjectIncomingCtxToOutgoingCtx(ctx), &couponpb.ApplyCouponRequest{
+				Code: req.Coupon.Value,
+			}); err != nil {
+				stt, _ := status.FromError(err)
+				switch stt.Code() {
+				case codes.NotFound:
+					return status.Errorf(codes.NotFound, "coupon not found")
+				case codes.FailedPrecondition:
+					return status.Errorf(codes.FailedPrecondition, "unable to apply this coupon")
+				default:
+					return status.Errorf(codes.Internal, "unable to apply this coupon: %v", err.Error())
+				}
 			}
 		}
 

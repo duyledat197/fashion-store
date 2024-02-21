@@ -33,15 +33,16 @@ func (r *loginHistoryRepository) Create(ctx context.Context, db database.Executo
 	return nil
 }
 
-func (r *loginHistoryRepository) UpdateLogout(ctx context.Context, db database.Executor, accessToken string) error {
+func (r *loginHistoryRepository) UpdateLogout(ctx context.Context, db database.Executor, userID int64, accessToken string) error {
 	e := &entity.LoginHistory{}
 	stmt := fmt.Sprintf(`
 		UPDATE %s
 		SET
 		logout_at = NOW()
 		WHERE access_token = $1
+		AND user_id = $2
 	`, e.TableName())
-	result, err := db.ExecContext(ctx, stmt, &accessToken)
+	result, err := db.ExecContext(ctx, stmt, &accessToken, &userID)
 	if err != nil {
 		return err
 	}
