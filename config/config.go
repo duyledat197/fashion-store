@@ -15,7 +15,8 @@ type Config struct {
 	CouponService  *Endpoint
 	GatewayService *Endpoint
 
-	SymetricKey string
+	SymetricKey   string
+	FileLogOutPut string
 }
 
 type config struct {
@@ -37,13 +38,14 @@ type config struct {
 	GatewayGRPCHost string `mapstructure:"GATEWAY_GRPC_HOST"`
 	GatewayGRPCPort string `mapstructure:"GATEWAY_GRPC_PORT"`
 
-	SymetricKey string `mapstructure:"SYMETRIC_KEY"`
+	SymetricKey   string `mapstructure:"SYMETRIC_KEY"`
+	FileLogOutPut string `mapstructure:"FILE_LOG_OUTPUT"`
 }
 
-func LoadConfig(path string, service, env string) (*Config, error) {
+func LoadConfig(path string, env string) (*Config, error) {
 	var cfg config
 	viper.AddConfigPath(path)
-	viper.SetConfigName(fmt.Sprintf("%s.%s", service, env))
+	viper.SetConfigName(env)
 	viper.SetConfigType("env")
 
 	viper.AutomaticEnv()
@@ -82,6 +84,7 @@ func LoadConfig(path string, service, env string) (*Config, error) {
 			Host: cfg.GatewayGRPCHost,
 			Port: cfg.GatewayGRPCPort,
 		},
-		SymetricKey: cfg.SymetricKey,
+		SymetricKey:   cfg.SymetricKey,
+		FileLogOutPut: cfg.FileLogOutPut,
 	}, nil
 }

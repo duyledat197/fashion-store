@@ -7,6 +7,7 @@ import (
 	"log"
 	"log/slog"
 	"os"
+	"path"
 
 	"github.com/lmittmann/tint"
 
@@ -30,7 +31,7 @@ var (
 
 func loadConfigs() {
 	var err error
-	cfgs, err = config.LoadConfig("development", os.Getenv("SERVICE"), os.Getenv("ENV"))
+	cfgs, err = config.LoadConfig(path.Join("development", os.Getenv("SERVICE")), os.Getenv("ENV"))
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
@@ -42,7 +43,8 @@ func loadLogger() {
 	case "dev":
 		logger = slog.New(tint.NewHandler(os.Stdout, nil))
 	case "stg", "prd":
-		output := os.Getenv("FILE_LOG_OUTPUT")
+		output := cfgs.FileLogOutPut
+		log.Println(output)
 		f, err := os.OpenFile(output, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 		if err != nil {
 			panic(fmt.Errorf("unable to open log file output: %w", err))

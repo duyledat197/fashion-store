@@ -7,7 +7,7 @@ following features:
 * Login/logout.
 * Forgot password.
 * Register new account.
-* Add new fashion product with appropriate informations such as(name,type, image/images (with Object Storage),price,description, etc...).
+* Add new fashion product with appropriate informations such as(`name,type, image/images (with Object Storage),price,description, etc...`).
 * Update a specific fashion with id.
 * Delete specific fashion with id or array of ids.
 * Simple sales flow that allows shop owners to set sale coupons for a single product.
@@ -343,10 +343,10 @@ I already set up variables for develop environment.So we no need do anything.
 3. Simple start 4 services:
 
 ```sh
-  make start-user
-  make start-product
-  make start-coupon
-  make start-gateway
+  make start-user-dev
+  make start-product-dev
+  make start-coupon-dev
+  make start-gateway-dev
 ```
 
 

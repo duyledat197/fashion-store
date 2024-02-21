@@ -1,0 +1,4 @@
+{"time":"2024-02-21T13:03:53.30193+07:00","level":"INFO","msg":"connect postgres successful"}
+{"time":"2024-02-21T13:03:53.302161+07:00","level":"INFO","msg":"Server listening in port: 8080"}
+{"time":"2024-02-21T13:07:06.582766+07:00","level":"INFO","msg":"connect postgres successful"}
+{"time":"2024-02-21T13:07:06.583291+07:00","level":"INFO","msg":"Server listening in port: 8080"}

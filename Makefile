@@ -18,13 +18,19 @@ start-postgres:
 start-adminer:
 	docker compose -f ${COMPOSE_FILE} up adminer -d
 
-start-user:
+start-user-dev:
 	SERVICE=user-management ENV=dev go run main.go userManagement
-start-product:
+
+start-user-stg:
+	SERVICE=user-management ENV=stg go run main.go userManagement
+
+start-product-dev:
 	SERVICE=product-management ENV=dev go run main.go productManagement
-start-gateway:
+
+start-gateway-dev:
 	SERVICE=gateway ENV=dev go run main.go gateway
-start-coupon:
+
+start-coupon-dev:
 	SERVICE=coupon-management ENV=dev go run main.go couponManagement
 
 
