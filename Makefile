@@ -12,6 +12,12 @@ gen-mock:
 migrate-all:
 	docker compose -f ${COMPOSE_FILE} up migrate
 
+build:
+	CGO_ENABLED=0 && go build -o app-exe
+	
+docker-build:
+	docker build -t trintech/review -f ./development/Dockerfile .
+
 start-postgres:
 	docker compose -f ${COMPOSE_FILE} up postgres -d
 
@@ -32,7 +38,6 @@ start-gateway-dev:
 
 start-coupon-dev:
 	SERVICE=coupon-management ENV=dev go run main.go couponManagement
-
 
 run:
 	./developments/start.sh

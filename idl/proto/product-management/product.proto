@@ -4,10 +4,7 @@ package pb;
 option go_package = "product-management/product";
 
 import "google/api/annotations.proto";
-import "google/protobuf/empty.proto";
-import "validate/validate.proto";
 import "google/protobuf/wrappers.proto";
-import "google/protobuf/timestamp.proto";
 
 service ProductService {
   rpc RetrieveProductByID(RetrieveProductByIDRequest)

@@ -78,10 +78,7 @@ func (r *userCacheRepository) RemoveByEmail(ctx context.Context, email string) e
 }
 
 func (r *userCacheRepository) IncrementForgotPassword(ctx context.Context, email string) (int64, error) {
-	num, err := r.fpMap.Get(ctx, email)
-	if err != nil {
-		return 0, err
-	}
+	num, _ := r.fpMap.Get(ctx, email)
 
 	if num == nil {
 		num = new(int64)

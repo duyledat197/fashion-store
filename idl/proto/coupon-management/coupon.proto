@@ -4,7 +4,6 @@ package pb;
 option go_package = "coupon-management/coupon";
 
 import "google/api/annotations.proto";
-import "google/protobuf/empty.proto";
 import "validate/validate.proto";
 import "google/protobuf/wrappers.proto";
 import "google/protobuf/timestamp.proto";
@@ -37,11 +36,7 @@ service CouponService {
     };
   }
 
-  rpc ApplyCoupon(ApplyCouponRequest) returns (ApplyCouponResponse) {
-    option (google.api.http) = {
-      put : "/v1/coupons/{code}/apply"
-    };
-  }
+  rpc ApplyCoupon(ApplyCouponRequest) returns (ApplyCouponResponse);
 }
 
 //////////////////////////////////////////////

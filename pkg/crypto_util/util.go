@@ -23,13 +23,14 @@ func CheckPassword(password string, hashedPassword string) error {
 	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 }
 
+// Constants for generating random password
 const (
 	letterBytes  = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	specialBytes = "!@#$%^&*()_+-=[]{}\\|;':\",.<>/?`~"
 	numBytes     = "0123456789"
 )
 
-// GeneratePassword implements
+// GeneratePassword generates a random password based on the specified criteria
 func GeneratePassword(length int, useLetters bool, useSpecial bool, useNum bool) string {
 	b := make([]byte, length)
 	for i := range b {
@@ -44,6 +45,7 @@ func GeneratePassword(length int, useLetters bool, useSpecial bool, useNum bool)
 	return string(b)
 }
 
+// Constants for generating a code
 const (
 	Charset    = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	RandLength = 5
@@ -51,6 +53,7 @@ const (
 
 var seededRand *rand.Rand = rand.New(rand.NewSource(time.Now().UnixNano()))
 
+// GenerateCode generates a unique code with a prefix based on the current timestamp
 func GenerateCode(prefix string) string {
 	t := time.Now()
 	y := ""
@@ -75,6 +78,7 @@ func GenerateCode(prefix string) string {
 	return strings.ToUpper(code)
 }
 
+// Utility function to generate a string with characters from a predefined charset
 func stringWithCharset(length int) string {
 	b := make([]byte, length)
 	for i := range b {
@@ -83,6 +87,7 @@ func stringWithCharset(length int) string {
 	return string(b)
 }
 
+// Utility function to generate a string with a specified length
 func genStringWithLength(length int) string {
 	return stringWithCharset(length)
 }
