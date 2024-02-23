@@ -22,7 +22,7 @@ CREATE INDEX IF NOT EXISTS users_user_name_idx ON users(user_name);
 CREATE INDEX IF NOT EXISTS users_email_idx ON users(email);
 
 CREATE TABLE IF NOT EXISTS login_histories(
-  "user_id" bigint,
+  "user_id" bigint REFERENCES users("id"),
   "ip" text,
   "user_agent" text,
   "access_token" text,
