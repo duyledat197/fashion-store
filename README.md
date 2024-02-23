@@ -15,9 +15,26 @@ following features:
 * Logging system (to files) for every action that will occur inside of this system.
 
 # Architecture: 
-The Architecture using the [clean architecture](https://raw.githubusercontent.com/phungvandat/clean-architecture/dev/images/clean-arch.png) that control the system split to 3 layers.
+- [Microservice Architecture](https://microservices.io/i/Microservice_Architecture.png)
+- [Clean architecture](https://raw.githubusercontent.com/phungvandat/clean-architecture/dev/images/clean-arch.png) 
 
-![clean architecture](https://raw.githubusercontent.com/phungvandat/clean-architecture/dev/images/clean-arch.png)
+# Database
+## User service database:
+![image](./docs/flows/user_service_db.svg)
+## Coupon service database:
+![image](./docs/flows/coupon_service_db.svg)
+## Product service database:
+![image](./docs/flows/product_service_db.svg)
+
+# Functional flows:
+## Forgot password flow:
+![image](./docs/flows/forgot_password.svg)
+## Reset password flow:
+![image](./docs/flows/reset_password.svg)
+## Login flow:
+![image](./docs/flows/login.svg)
+## Functional relation of user flow:
+![image](./docs/flows/functional_relation.svg)
 
 
 # Built With
@@ -33,6 +50,7 @@ This section list any major frameworks/libraries used to bootstrap project.
 - Using [lru](github.com/hashicorp/golang-lru/v2) for in memory caching.
 - Using [pq](github.com/lib/pq) for postgres driver.
 - Using [cobra](github.com/spf13/cobra) for generate command line.
+
 
 # Folder structure
 ```sh
@@ -361,15 +379,6 @@ I already set up variables for develop environment.So we no need do anything.
 ```
 
 
-# Functional flows:
-## Forgot password flow:
-![image](./docs/flows/forgot_password.svg)
-## Reset password flow:
-![image](./docs/flows/reset_password.svg)
-## Login flow:
-![image](./docs/flows/login.svg)
-## Functional relation of user flow:
-![image](./docs/flows/functional_relation.svg)
 
 # Conclusion:
 I was do many things and features, so i don't have many time for done at all. If i have more time what i will do:
