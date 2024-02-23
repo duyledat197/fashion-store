@@ -53,15 +53,23 @@ func init() {
 	// couponManagementCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
+// loadCouponManagement initializes and loads the Coupon Management service.
 func loadCouponManagement(_ context.Context) {
+	// Create a new PostgreSQL client using the specified address.
 	pgClient := postgres_client.NewPostgresClient(cfgs.PostgresDB.Address())
 
+	// Create a new CouponService instance with the PostgreSQL client.
 	service := service.NewCouponService(pgClient)
 
+	// Create a new gRPC server using the specified configuration.
 	srv := grpc_server.NewGrpcServer(cfgs.CouponService)
 
+	// Register the CouponService implementation with the gRPC server.
 	pb.RegisterCouponServiceServer(srv.Server, service)
 
+	// Append the all factory client to the list of factories.
 	factories = append(factories, pgClient)
+
+	// Append the all server to the list of processors.
 	processors = append(processors, srv)
 }

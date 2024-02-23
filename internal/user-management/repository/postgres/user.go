@@ -11,14 +11,17 @@ import (
 	"trintech/review/pkg/database"
 )
 
+// userRepository is an implementation of the UserRepository interface for PostgreSQL database.
 type userRepository struct {
 }
 
-// NewUserRepository ...
+// NewUserRepository creates a new instance of userRepository.
 func NewUserRepository() repository.UserRepository {
 	return &userRepository{}
 }
 
+// RetrieveByUserName retrieves a user from the database based on the username.
+// It returns the retrieved user and an error if any.
 func (r *userRepository) RetrieveByUserName(ctx context.Context, db database.Executor, userName string) (*entity.User, error) {
 	e := &entity.User{}
 	fieldNames, values := database.FieldMap(e)
@@ -35,6 +38,8 @@ func (r *userRepository) RetrieveByUserName(ctx context.Context, db database.Exe
 	return e, nil
 }
 
+// Create adds a new user record to the database.
+// It returns the ID of the newly created record and an error if any.
 func (r *userRepository) Create(ctx context.Context, db database.Executor, data *entity.User) (int64, error) {
 	fieldNames, values := database.FieldMap(data)
 	fieldNames = fieldNames[1:]
@@ -55,6 +60,8 @@ func (r *userRepository) Create(ctx context.Context, db database.Executor, data 
 	return id, nil
 }
 
+// RetrieveByEmail retrieves a user from the database based on the email.
+// It returns the retrieved user and an error if any.
 func (r *userRepository) RetrieveByEmail(ctx context.Context, db database.Executor, email string) (*entity.User, error) {
 	e := &entity.User{}
 	fieldNames, values := database.FieldMap(e)
@@ -71,6 +78,8 @@ func (r *userRepository) RetrieveByEmail(ctx context.Context, db database.Execut
 	return e, nil
 }
 
+// UpdatePassword updates the password of a user in the database based on the email.
+// It returns an error if any.
 func (r *userRepository) UpdatePassword(ctx context.Context, db database.Executor, email string, password string) error {
 	e := &entity.User{}
 	stmt := fmt.Sprintf(`

@@ -55,17 +55,22 @@ func init() {
 	// gatewayCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
+// loadGateway initializes and loads the Gateway service.
 func loadGateway(ctx context.Context) {
+	// Create gRPC client connections to the user, product, and coupon services.
 	userClientConn := grpc_client.NewGrpcClient(cfgs.UserService)
 	productClientConn := grpc_client.NewGrpcClient(cfgs.ProductService)
 	couponClientConn := grpc_client.NewGrpcClient(cfgs.CouponService)
 
+	// Create gRPC client instances for user, product, and coupon services.
 	userClient := userpb.NewAuthServiceClient(userClientConn)
 	productClient := productpb.NewProductServiceClient(productClientConn)
 	couponClient := couponpb.NewCouponServiceClient(couponClientConn)
 
+	// Create a new HTTP server for handling gRPC-to-HTTP translation.
 	httpServer := http_server.NewHttpServer(
 		func(mux *runtime.ServeMux) {
+			// Register gRPC handlers for user, product, and coupon services.
 			userpb.RegisterAuthServiceHandlerClient(ctx, mux, userClient)
 			productpb.RegisterProductServiceHandlerClient(ctx, mux, productClient)
 			couponpb.RegisterCouponServiceHandlerClient(ctx, mux, couponClient)
@@ -74,6 +79,9 @@ func loadGateway(ctx context.Context) {
 		tokenGenerator,
 	)
 
+	// Append gRPC client connections to the list of factories.
 	factories = append(factories, userClientConn, productClientConn, couponClientConn)
+
+	// Append the HTTP server to the list of processors.
 	processors = append(processors, httpServer)
 }

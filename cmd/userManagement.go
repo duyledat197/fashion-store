@@ -54,15 +54,23 @@ func init() {
 	// userManagementCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-func loadUserManagement(ctx context.Context) {
+// loadUserManagement initializes and loads the User Management service.
+func loadUserManagement(_ context.Context) {
+	// Create a new PostgreSQL client using the specified address.
 	pgClient := postgres_client.NewPostgresClient(cfgs.PostgresDB.Address())
 
+	// Create a new AuthService instance with the PostgreSQL client, mock publisher, and token generator.
 	service := service.NewAuthService(pgClient, &mocks.Publisher{}, tokenGenerator)
 
+	// Create a new gRPC server using the specified configuration.
 	srv := grpc_server.NewGrpcServer(cfgs.UserService)
 
+	// Register the AuthService implementation with the gRPC server.
 	pb.RegisterAuthServiceServer(srv.Server, service)
 
+	// Append the PostgreSQL client to the list of factories.
 	factories = append(factories, pgClient)
+
+	// Append the gRPC server to the list of processors.
 	processors = append(processors, srv)
 }

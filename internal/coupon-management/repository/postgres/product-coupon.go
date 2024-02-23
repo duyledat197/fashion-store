@@ -11,14 +11,17 @@ import (
 	"trintech/review/pkg/database"
 )
 
-type productCouponRepository struct {
-}
+// productCouponRepository is an implementation of the ProductCouponRepository interface for PostgreSQL.
+type productCouponRepository struct{}
 
+// NewProductCouponRepository creates a new instance of the productCouponRepository.
 func NewProductCouponRepository() repository.ProductCouponRepository {
 	return &productCouponRepository{}
 }
 
+// Create inserts a new product coupon record into the database.
 func (r *productCouponRepository) Create(ctx context.Context, db database.Executor, data *entity.ProductCoupon) error {
+	// Get field names and values.
 	fieldNames, values := database.FieldMap(data)
 	placeHolders := database.GetPlaceholders(len(fieldNames))
 
@@ -34,6 +37,7 @@ func (r *productCouponRepository) Create(ctx context.Context, db database.Execut
 	return nil
 }
 
+// DeleteByCouponID deletes product coupons based on the given couponID.
 func (r *productCouponRepository) DeleteByCouponID(ctx context.Context, db database.Executor, couponID int64) error {
 	e := &entity.ProductCoupon{}
 	stmt := fmt.Sprintf(`
@@ -57,6 +61,7 @@ func (r *productCouponRepository) DeleteByCouponID(ctx context.Context, db datab
 	return nil
 }
 
+// RetrieveByCouponID retrieves a product coupon record from the database based on its ID.
 func (r *productCouponRepository) RetrieveByCouponID(ctx context.Context, db database.Executor, couponID int64) (*entity.ProductCoupon, error) {
 	e := &entity.ProductCoupon{}
 	fieldNames, values := database.FieldMap(e)

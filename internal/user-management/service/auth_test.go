@@ -93,7 +93,7 @@ func Test_authService_Register(t *testing.T) {
 					RepeatPassword: "wrong-password",
 				},
 			},
-			wantErr: status.Errorf(codes.InvalidArgument, "password and repeated password is not match"),
+			wantErr: status.Errorf(codes.InvalidArgument, "password and repeated password do not match"),
 			setup: func(ctx context.Context, fields fields) {
 			},
 		},
@@ -160,7 +160,7 @@ func Test_authService_Register(t *testing.T) {
 					RepeatPassword: "password",
 				},
 			},
-			wantErr: status.Errorf(codes.AlreadyExists, "email already register"),
+			wantErr: status.Errorf(codes.AlreadyExists, "email already registered"),
 			setup: func(ctx context.Context, fields fields) {
 				fields.userCacheRepo.On("RetrieveByUserName", mock.Anything, mock.Anything).Return(nil, sql.ErrNoRows)
 				fields.userRepo.On("RetrieveByUserName", mock.Anything, mock.Anything, mock.Anything).Return(nil, sql.ErrNoRows)
@@ -186,7 +186,7 @@ func Test_authService_Register(t *testing.T) {
 				},
 			},
 			want:    nil,
-			wantErr: status.Errorf(codes.AlreadyExists, "email already register"),
+			wantErr: status.Errorf(codes.AlreadyExists, "email already registered"),
 			setup: func(ctx context.Context, fields fields) {
 				fields.userCacheRepo.On("RetrieveByUserName", mock.Anything, mock.Anything).Return(nil, sql.ErrNoRows)
 				fields.userRepo.On("RetrieveByUserName", mock.Anything, mock.Anything, mock.Anything).Return(nil, sql.ErrNoRows)
@@ -287,7 +287,7 @@ func Test_authService_Login(t *testing.T) {
 					Password: "wrong-password",
 				},
 			},
-			wantErr: status.Errorf(codes.InvalidArgument, "username or password is not correctly"),
+			wantErr: status.Errorf(codes.InvalidArgument, "username or password is not correct"),
 			setup: func(ctx context.Context, fields fields) {
 				pwd, _ := crypto_util.HashPassword("password")
 				fields.userCacheRepo.On("RetrieveByUserName", mock.Anything, mock.Anything, mock.Anything).Return(&entity.User{
@@ -312,7 +312,7 @@ func Test_authService_Login(t *testing.T) {
 					Password: "password",
 				},
 			},
-			wantErr: status.Errorf(codes.InvalidArgument, "username or password is not correctly"),
+			wantErr: status.Errorf(codes.InvalidArgument, "username or password is not correct"),
 			setup: func(ctx context.Context, fields fields) {
 				fields.userCacheRepo.On("RetrieveByUserName", mock.Anything, mock.Anything).Return(nil, sql.ErrNoRows)
 				fields.userRepo.On("RetrieveByUserName", mock.Anything, mock.Anything, mock.Anything).Return(nil, sql.ErrNoRows)
@@ -420,7 +420,7 @@ func Test_authService_ForgotPassword(t *testing.T) {
 					Email: "user@gmail.com",
 				},
 			},
-			wantErr: status.Errorf(codes.InvalidArgument, "email is not correctly"),
+			wantErr: status.Errorf(codes.InvalidArgument, "email is not correct"),
 			setup: func(ctx context.Context, fields fields) {
 				fields.userCacheRepo.On("RetrieveByEmail", mock.Anything, mock.Anything).Return(nil, sql.ErrNoRows)
 				fields.userRepo.On("RetrieveByEmail", mock.Anything, mock.Anything, mock.Anything).Return(nil, sql.ErrNoRows)
@@ -439,7 +439,7 @@ func Test_authService_ForgotPassword(t *testing.T) {
 					Email: "user@gmail.com",
 				},
 			},
-			wantErr: status.Errorf(codes.Internal, "forgot password count got exceed"),
+			wantErr: status.Errorf(codes.Internal, "forgot password count exceeded"),
 			setup: func(ctx context.Context, fields fields) {
 				fields.userCacheRepo.On("RetrieveByEmail", mock.Anything, mock.Anything).Return(&entity.User{}, nil)
 				fields.userCacheRepo.On("IncrementForgotPassword", mock.Anything, mock.Anything, mock.Anything).Return(int64(6), nil)

@@ -60,26 +60,36 @@ func NewProductService(
 	}
 }
 
+// validAdmin checks admin validation from context.
+// It extracts user information from the context and validates if the user has admin or super admin role.
 func validAdmin(ctx context.Context) (*xcontext.UserInfo, error) {
+	// Extract user information from the context
 	userCtx, ok := http_server.ExtractUserInfoFromCtx(ctx)
 	if !ok {
+		// If user information is not found, return a permission denied error
 		return nil, status.Errorf(codes.PermissionDenied, "user doesn't have permission")
 	}
 
+	// Check if the user has admin or super admin role
 	if !slices.Contains([]string{userEntity.UserRole_Admin, userEntity.UserRole_SuperAdmin}, userCtx.Role) {
+		// If not, return a permission denied error
 		return nil, status.Errorf(codes.PermissionDenied, "user doesn't have permission")
 	}
 
+	// Return user information if validation is successful
 	return userCtx, nil
 }
 
-// CreateProduct ...
+// CreateProduct is a method of the productService that handles the creation of a new product.
+// It validates the admin user, creates a product in the repository, and returns the created product's ID.
 func (s *productService) CreateProduct(ctx context.Context, req *pb.CreateProductRequest) (*pb.CreateProductResponse, error) {
+	// Validate admin user
 	userCtx, err := validAdmin(ctx)
 	if err != nil {
 		return nil, err
 	}
 
+	// Create a new product in the repository
 	id, err := s.productRepo.Create(ctx, s.db, &entity.Product{
 		Name:        pg_util.NullString(req.GetName()),
 		Type:        pg_util.NullString(req.GetType()),
@@ -90,51 +100,68 @@ func (s *productService) CreateProduct(ctx context.Context, req *pb.CreateProduc
 	})
 
 	if err != nil {
+		// If there is an error during product creation, return an internal server error
 		return nil, status.Errorf(codes.Internal, "unable to create product: %v", err.Error())
 	}
 
+	// Return the created product's ID
 	return &pb.CreateProductResponse{
 		Id: id,
 	}, nil
 }
 
-// DeleteProductByID ...
+// DeleteProductByID is a method of the productService that handles the deletion of a product by ID.
+// It validates the admin user, deletes the product in the repository, and returns an empty response.
 func (s *productService) DeleteProductByID(ctx context.Context, req *pb.DeleteProductByIDRequest) (*pb.DeleteProductByIDResponse, error) {
+	// Validate admin user
 	if _, err := validAdmin(ctx); err != nil {
 		return nil, err
 	}
 
+	// Delete the product in the repository by ID
 	if err := s.productRepo.DeleteByID(ctx, s.db, req.GetId()); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
+			// If the product is not found, return a not found error
 			return nil, status.Errorf(codes.NotFound, "product not found")
 		}
 
+		// If there is an error during product deletion, return an internal server error
 		return nil, status.Errorf(codes.Internal, "unable to delete product: %v", err.Error())
 	}
 
+	// Return an empty response indicating successful deletion
 	return &pb.DeleteProductByIDResponse{}, nil
 }
 
-// DeleteProductByIDs ...
+// DeleteProductByIDs is a method of the productService that handles the deletion of products by IDs.
+// It validates the admin user, deletes the products in the repository by IDs, and returns an empty response.
 func (s *productService) DeleteProductByIDs(ctx context.Context, req *pb.DeleteProductByIDsRequest) (*pb.DeleteProductByIDsResponse, error) {
+	// Validate admin user
 	if _, err := validAdmin(ctx); err != nil {
 		return nil, err
 	}
 
+	// Delete the products in the repository by IDs
 	if err := s.productRepo.DeleteByIDs(ctx, s.db, req.GetIds()); err != nil {
+		// If there is an error during product deletion, return an internal server error
 		return nil, status.Errorf(codes.Internal, "unable to delete product: %v", err.Error())
 	}
 
+	// Return an empty response indicating successful deletion
 	return &pb.DeleteProductByIDsResponse{}, nil
 }
 
-// ListProduct ...
+// ListProduct is a method of the productService that retrieves a list of products.
+// It validates the admin user, retrieves the list of products from the repository, and returns the response.
 func (s *productService) ListProduct(ctx context.Context, req *pb.ListProductRequest) (*pb.ListProductResponse, error) {
+	// Retrieve the list of products from the repository
 	list, err := s.productRepo.List(ctx, s.db, req.GetOffset(), req.GetLimit())
 	if err != nil {
+		// If there is an error during product retrieval, return an internal server error
 		return nil, status.Errorf(codes.Internal, "unable to retrieve list product: %v", err.Error())
 	}
 
+	// Transform the list of products to the response format
 	respData := make([]*pb.Product, 0, len(list))
 
 	for _, product := range list {
@@ -147,43 +174,55 @@ func (s *productService) ListProduct(ctx context.Context, req *pb.ListProductReq
 		})
 	}
 
+	// Get the total count of products
 	total, err := s.productRepo.Count(ctx, s.db)
 	if err != nil {
+		// If there is an error during count retrieval, return an internal server error
 		return nil, status.Errorf(codes.Internal, "unable to count product: %v", err.Error())
 	}
 
+	// Return the list of products and total count in the response
 	return &pb.ListProductResponse{
 		Data:  respData,
 		Total: total,
 	}, nil
 }
 
-// RetrieveProductByID ...
+// RetrieveProductByID is a method of the productService that retrieves a product by ID.
+// It validates the admin user, retrieves the product from the repository by ID, and returns the response.
 func (s *productService) RetrieveProductByID(ctx context.Context, req *pb.RetrieveProductByIDRequest) (*pb.RetrieveProductByIDResponse, error) {
+	// Retrieve the product from the repository by ID
 	product, err := s.productRepo.RetrieveByID(ctx, s.db, req.GetId())
 	switch {
 	case errors.Is(err, pgx.ErrNoRows):
+		// If the product is not found, return a not found error
 		return nil, status.Errorf(codes.NotFound, "product not found")
 	case err != nil:
+		// If there is an error during product retrieval, return an internal server error
 		return nil, status.Errorf(codes.Internal, "unable to retrieve product: %v", err.Error())
 	}
 
+	// Transform the retrieved product to the response format
 	return &pb.RetrieveProductByIDResponse{
 		Data: &pb.Product{
 			Name:        product.Name.String,
 			Type:        product.Type.String,
 			ImageUrls:   pg_util.StringArrayValue(product.ImageURLs),
 			Description: product.Description.String,
+			Price:       product.Price.Float64,
 		},
 	}, nil
 }
 
-// UpdateProductByID ...
+// UpdateProductByID is a method of the productService that updates a product by ID.
+// It validates the admin user, updates the product in the repository by ID, and returns an empty response.
 func (s *productService) UpdateProductByID(ctx context.Context, req *pb.UpdateProductByIDRequest) (*pb.UpdateProductByIDResponse, error) {
+	// Validate admin user
 	if _, err := validAdmin(ctx); err != nil {
 		return nil, err
 	}
 
+	// Update the product in the repository by ID
 	if err := s.productRepo.UpdateByID(ctx, s.db, req.GetId(), &entity.Product{
 		Name:        pg_util.NullString(req.GetName()),
 		Type:        pg_util.NullString(req.GetType()),
@@ -191,32 +230,44 @@ func (s *productService) UpdateProductByID(ctx context.Context, req *pb.UpdatePr
 		ImageURLs:   pg_util.StringArray(req.GetImageUrls()),
 	}); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
+			// If the product is not found, return a not found error
 			return nil, status.Errorf(codes.NotFound, "product not found")
 		}
 
+		// If there is an error during product update, return an internal server error
 		return nil, status.Errorf(codes.Internal, "unable to update product: %v", err.Error())
 	}
 
+	// Return an empty response indicating successful update
 	return &pb.UpdateProductByIDResponse{}, nil
 }
 
+// PurchaseProduct is a method of the productService that handles the purchase of a product.
+// It extracts user information, retrieves the product, applies a coupon if provided,
+// creates a purchase record in the repository, and returns an empty response.
 func (s *productService) PurchaseProduct(ctx context.Context, req *pb.PurchaseProductRequest) (*pb.PurchaseProductResponse, error) {
+	// Extract user information from the context
 	userCtx, ok := http_server.ExtractUserInfoFromCtx(ctx)
 	if !ok {
+		// If user information is not found, return a permission denied error
 		return nil, status.Errorf(codes.PermissionDenied, "user doesn't have permission")
 	}
 
+	// Retrieve the product by ID
 	product, err := s.productRepo.RetrieveByID(ctx, s.db, req.GetId())
 	switch {
 	case errors.Is(err, sql.ErrNoRows):
+		// If the product is not found, return a not found error
 		return nil, status.Errorf(codes.NotFound, "product not found")
 	case err != nil:
+		// If there is an error during product retrieval, return an internal server error
 		return nil, status.Errorf(codes.Internal, "unable to retrieve product: %v", err.Error())
 	}
 
-	var (
-		discountTotal float64 = product.Price.Float64
-	)
+	// Initialize discountTotal with the original product price
+	var discountTotal float64 = product.Price.Float64
+
+	// Apply coupon if provided
 	if req.GetCoupon() != nil {
 		coupon, err := s.couponServiceClient.RetrieveCouponByCode(http_server.InjectIncomingCtxToOutgoingCtx(ctx), &couponpb.RetrieveCouponByCodeRequest{
 			Code:     req.GetCoupon().GetValue(),
@@ -227,18 +278,23 @@ func (s *productService) PurchaseProduct(ctx context.Context, req *pb.PurchasePr
 			stt, _ := status.FromError(err)
 			switch stt.Code() {
 			case codes.NotFound:
+				// If the coupon is not found, return a not found error
 				return nil, status.Errorf(codes.NotFound, "coupon not found")
 			case codes.FailedPrecondition:
+				// If there is a failed precondition, return a failed precondition error
 				return nil, status.Errorf(codes.FailedPrecondition, "unable to apply this coupon")
 			default:
+				// If there is an internal error, return an internal server error
 				return nil, status.Errorf(codes.Internal, "unable to apply this coupon: %v", err.Error())
 			}
 		}
 
+		// Check if the user can use this coupon
 		if !coupon.CanUse {
 			return nil, status.Errorf(codes.FailedPrecondition, "user cannot apply this coupon")
 		}
 
+		// Apply discount based on the coupon type
 		switch coupon.DiscountType {
 		case couponpb.DiscountType_DiscountType_PERCENT:
 			discountTotal = product.Price.Float64 * coupon.Value / 100
@@ -247,7 +303,9 @@ func (s *productService) PurchaseProduct(ctx context.Context, req *pb.PurchasePr
 		}
 	}
 
+	// Perform the purchase operation in a database transaction
 	if err := database.Transaction(ctx, s.db, func(ctx context.Context, tx *sql.Tx) error {
+		// Create a purchased product record
 		purchaseProduct := &entity.PurchasedProduct{
 			ProductID: product.ID,
 			UserID:    pg_util.NullInt64(userCtx.UserID),
@@ -259,10 +317,12 @@ func (s *productService) PurchaseProduct(ctx context.Context, req *pb.PurchasePr
 			purchaseProduct.Coupon = pg_util.NullString(req.GetCoupon().Value)
 		}
 
+		// Create the purchased product record in the repository
 		if err := s.purchasedProductRepo.Create(ctx, tx, purchaseProduct); err != nil {
 			return fmt.Errorf("unable to create purchase product: %v", err)
 		}
 
+		// Apply the coupon if provided
 		if req.GetCoupon() != nil {
 			if _, err := s.couponServiceClient.ApplyCoupon(http_server.InjectIncomingCtxToOutgoingCtx(ctx), &couponpb.ApplyCouponRequest{
 				Code: req.Coupon.Value,
@@ -270,10 +330,13 @@ func (s *productService) PurchaseProduct(ctx context.Context, req *pb.PurchasePr
 				stt, _ := status.FromError(err)
 				switch stt.Code() {
 				case codes.NotFound:
+					// If the coupon is not found, return a not found error
 					return status.Errorf(codes.NotFound, "coupon not found")
 				case codes.FailedPrecondition:
+					// If there is a failed precondition, return a failed precondition error
 					return status.Errorf(codes.FailedPrecondition, "unable to apply this coupon")
 				default:
+					// If there is an internal error, return an internal server error
 					return status.Errorf(codes.Internal, "unable to apply this coupon: %v", err.Error())
 				}
 			}
@@ -281,8 +344,10 @@ func (s *productService) PurchaseProduct(ctx context.Context, req *pb.PurchasePr
 
 		return nil
 	}); err != nil {
+		// If there is an error during the transaction, return the error
 		return nil, err
 	}
 
+	// Return an empty response indicating successful purchase
 	return &pb.PurchaseProductResponse{}, nil
 }

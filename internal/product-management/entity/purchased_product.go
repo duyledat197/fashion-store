@@ -1,10 +1,8 @@
 package entity
 
-import (
-	"database/sql"
-)
+import "database/sql"
 
-// PurchasedProduct ...
+// PurchasedProduct represents the structure of a purchased product entity in the database.
 type PurchasedProduct struct {
 	ProductID sql.NullInt64   `db:"product_id"`
 	UserID    sql.NullInt64   `db:"user_id"`
@@ -16,6 +14,7 @@ type PurchasedProduct struct {
 	UpdatedAt sql.NullTime    `db:"updated_at"`
 }
 
+// TableName returns the name of the database table associated with the PurchasedProduct entity.
 func (u *PurchasedProduct) TableName() string {
 	return "purchased_products"
 }

@@ -10,13 +10,15 @@ import (
 	"trintech/review/pkg/database"
 )
 
-type usedCouponRepository struct {
-}
+// usedCouponRepository is an implementation of the UsedCouponRepository interface for PostgreSQL.
+type usedCouponRepository struct{}
 
+// NewUsedCouponRepository creates a new instance of the usedCouponRepository.
 func NewUsedCouponRepository() repository.UsedCouponRepository {
 	return &usedCouponRepository{}
 }
 
+// ListUsedCouponByUserID retrieves a list of used coupons associated with a user from the database.
 func (r *usedCouponRepository) ListUsedCouponByUserID(ctx context.Context, db database.Executor, userID int64) ([]*entity.CouponUsedCoupon, error) {
 	e := &entity.UsedCoupon{}
 	cE := &entity.Coupon{}
@@ -27,7 +29,6 @@ func (r *usedCouponRepository) ListUsedCouponByUserID(ctx context.Context, db da
 		JOIN %s c
 		ON uc.coupon_id = c.id
 		WHERE user_id = $1
-
 	`,
 		strings.Join(fieldNames, ",uc."),
 		strings.Join(fieldNames, ",c."),
@@ -51,7 +52,7 @@ func (r *usedCouponRepository) ListUsedCouponByUserID(ctx context.Context, db da
 
 		_, uValues := database.FieldMap(&uVal)
 		_, cValues := database.FieldMap(&cVal)
-		var values []any
+		var values []interface{}
 		values = append(values, uValues...)
 		values = append(values, cValues...)
 
@@ -68,6 +69,7 @@ func (r *usedCouponRepository) ListUsedCouponByUserID(ctx context.Context, db da
 	return result, nil
 }
 
+// Create inserts a new used coupon record into the database.
 func (r *usedCouponRepository) Create(ctx context.Context, db database.Executor, data *entity.UsedCoupon) error {
 	fieldNames, values := database.FieldMap(data)
 	placeHolders := database.GetPlaceholders(len(fieldNames))

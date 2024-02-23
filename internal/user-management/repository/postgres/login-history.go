@@ -11,13 +11,17 @@ import (
 	"trintech/review/pkg/database"
 )
 
+// loginHistoryRepository is an implementation of the LoginHistoryRepository interface for PostgreSQL database.
 type loginHistoryRepository struct {
 }
 
+// NewLoginHistoryRepository creates a new instance of loginHistoryRepository.
 func NewLoginHistoryRepository() repository.LoginHistoryRepository {
 	return &loginHistoryRepository{}
 }
 
+// Create adds a new login history record to the database.
+// It returns an error if any.
 func (r *loginHistoryRepository) Create(ctx context.Context, db database.Executor, data *entity.LoginHistory) error {
 	fieldNames, values := database.FieldMap(data)
 	placeHolders := database.GetPlaceholders(len(fieldNames))
@@ -33,6 +37,8 @@ func (r *loginHistoryRepository) Create(ctx context.Context, db database.Executo
 	return nil
 }
 
+// UpdateLogout updates the logout timestamp of a user's login history in the database based on the access token and user ID.
+// It returns an error if any.
 func (r *loginHistoryRepository) UpdateLogout(ctx context.Context, db database.Executor, userID int64, accessToken string) error {
 	e := &entity.LoginHistory{}
 	stmt := fmt.Sprintf(`

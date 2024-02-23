@@ -56,18 +56,32 @@ func init() {
 	// productManagementCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
+// loadProductManagement initializes and loads the Product Management service.
 func loadProductManagement(_ context.Context) {
+	// Create a new PostgreSQL client using the specified address.
 	pgClient := postgres_client.NewPostgresClient(cfgs.PostgresDB.Address())
+
+	// Create a gRPC client connection to the Coupon service.
 	couponClientConn := grpc_client.NewGrpcClient(cfgs.CouponService)
+
+	// Create a gRPC client instance for the Coupon service.
 	couponClient := couponpb.NewCouponServiceClient(couponClientConn)
 
+	// Log the address of the Coupon service.
 	log.Println(cfgs.CouponService.Address())
+
+	// Create a new ProductService instance with the PostgreSQL client and Coupon client.
 	service := service.NewProductService(pgClient, couponClient)
 
+	// Create a new gRPC server using the specified configuration.
 	srv := grpc_server.NewGrpcServer(cfgs.ProductService)
 
+	// Register the ProductService implementation with the gRPC server.
 	pb.RegisterProductServiceServer(srv.Server, service)
 
+	// Append the PostgreSQL client and Coupon gRPC client connection to the list of factories.
 	factories = append(factories, pgClient, couponClientConn)
+
+	// Append the gRPC server to the list of processors.
 	processors = append(processors, srv)
 }

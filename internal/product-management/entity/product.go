@@ -6,6 +6,7 @@ import (
 	"github.com/lib/pq"
 )
 
+// Product represents the entity structure for products in the database.
 type Product struct {
 	ID          sql.NullInt64   `db:"id"`
 	Name        sql.NullString  `db:"name"`
@@ -18,6 +19,7 @@ type Product struct {
 	UpdatedAt   sql.NullTime    `db:"updated_at"`
 }
 
+// TableName returns the name of the database table associated with the Product entity.
 func (u *Product) TableName() string {
 	return "products"
 }
