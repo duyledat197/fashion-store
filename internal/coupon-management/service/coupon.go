@@ -176,6 +176,7 @@ func (s *couponService) RetrieveCouponByCode(ctx context.Context, req *pb.Retrie
 			if err != nil {
 				return nil, status.Errorf(codes.Internal, "unable to retrieve user coupon : %v", err.Error())
 			}
+
 			if productCoupon.Used.Int64 >= productCoupon.Total.Int64 {
 				return &pb.RetrieveCouponByCodeResponse{
 					CanUse: false,

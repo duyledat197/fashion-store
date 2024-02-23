@@ -4,9 +4,11 @@ package service
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	pb "trintech/review/dto/coupon-management/coupon"
 	"trintech/review/internal/coupon-management/entity"
@@ -58,6 +60,8 @@ func Test_couponService_RetrieveCouponByCode_CanUse(t *testing.T) {
 					Type:  pg_util.NullString(pb.CouponType_CouponType_LIMITED.String()),
 					Used:  pg_util.NullInt64(1),
 					Total: pg_util.NullInt64(10),
+					From:  pg_util.NullTime(time.Now().AddDate(0, -1, 0)),
+					To:    pg_util.NullTime(time.Now().AddDate(0, 1, 0)),
 				}, nil)
 
 			},
@@ -85,6 +89,8 @@ func Test_couponService_RetrieveCouponByCode_CanUse(t *testing.T) {
 					Type:  pg_util.NullString(pb.CouponType_CouponType_LIMITED.String()),
 					Used:  pg_util.NullInt64(1),
 					Total: pg_util.NullInt64(10),
+					From:  pg_util.NullTime(time.Now().AddDate(0, -1, 0)),
+					To:    pg_util.NullTime(time.Now().AddDate(0, 1, 0)),
 				}, nil)
 
 			},
@@ -103,6 +109,7 @@ func Test_couponService_RetrieveCouponByCode_CanUse(t *testing.T) {
 				req: &pb.RetrieveCouponByCodeRequest{
 					Code:     "ABC",
 					CheckUse: true,
+					UserId:   wrapperspb.Int64(1),
 				},
 			},
 			want: &pb.RetrieveCouponByCodeResponse{
@@ -111,8 +118,11 @@ func Test_couponService_RetrieveCouponByCode_CanUse(t *testing.T) {
 			setup: func(ctx context.Context, fields fields) {
 				fields.couponRepo.On("RetrieveByCode", mock.Anything, mock.Anything, mock.Anything).Return(&entity.Coupon{
 					Type: pg_util.NullString(pb.CouponType_CouponType_USER.String()),
+					From: pg_util.NullTime(time.Now().AddDate(0, -1, 0)),
+					To:   pg_util.NullTime(time.Now().AddDate(0, 1, 0)),
 				}, nil)
-				fields.userCouponRepo.On("RetrieveByCouponID", mock.Anything, mock.Anything, mock.Anything).Return(&entity.UserCoupon{
+
+				fields.userCouponRepo.On("RetrieveByCouponIDUserID", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(&entity.UserCoupon{
 					Used:  pg_util.NullInt64(1),
 					Total: pg_util.NullInt64(10),
 				}, nil)
@@ -139,6 +149,8 @@ func Test_couponService_RetrieveCouponByCode_CanUse(t *testing.T) {
 			setup: func(ctx context.Context, fields fields) {
 				fields.couponRepo.On("RetrieveByCode", mock.Anything, mock.Anything, mock.Anything).Return(&entity.Coupon{
 					Type: pg_util.NullString(pb.CouponType_CouponType_PRODUCT.String()),
+					From: pg_util.NullTime(time.Now().AddDate(0, -1, 0)),
+					To:   pg_util.NullTime(time.Now().AddDate(0, 1, 0)),
 				}, nil)
 				fields.productCouponRepo.On("RetrieveByCouponID", mock.Anything, mock.Anything, mock.Anything).Return(&entity.ProductCoupon{
 					Used:  pg_util.NullInt64(1),
@@ -147,6 +159,63 @@ func Test_couponService_RetrieveCouponByCode_CanUse(t *testing.T) {
 			},
 		},
 
+		{
+			name: "err coupon is not launch",
+			fields: fields{
+				couponRepo:        &mocks.CouponRepository{},
+				userCouponRepo:    &mocks.UserCouponRepository{},
+				productCouponRepo: &mocks.ProductCouponRepository{},
+				usedCouponRepo:    &mocks.UsedCouponRepository{},
+			},
+			args: args{
+				ctx: context.Background(),
+				req: &pb.RetrieveCouponByCodeRequest{
+					Code:     "ABC",
+					CheckUse: true,
+				},
+			},
+			want: &pb.RetrieveCouponByCodeResponse{
+				CanUse: false,
+			},
+			setup: func(ctx context.Context, fields fields) {
+				fields.couponRepo.On("RetrieveByCode", mock.Anything, mock.Anything, mock.Anything).Return(&entity.Coupon{
+					Type:  pg_util.NullString(pb.CouponType_CouponType_LIMITED.String()),
+					Used:  pg_util.NullInt64(10),
+					Total: pg_util.NullInt64(10),
+					From:  pg_util.NullTime(time.Now().AddDate(0, 0, 1)),
+					To:    pg_util.NullTime(time.Now().AddDate(0, 1, 0)),
+				}, nil)
+			},
+		},
+
+		{
+			name: "err coupon is outdate",
+			fields: fields{
+				couponRepo:        &mocks.CouponRepository{},
+				userCouponRepo:    &mocks.UserCouponRepository{},
+				productCouponRepo: &mocks.ProductCouponRepository{},
+				usedCouponRepo:    &mocks.UsedCouponRepository{},
+			},
+			args: args{
+				ctx: context.Background(),
+				req: &pb.RetrieveCouponByCodeRequest{
+					Code:     "ABC",
+					CheckUse: true,
+				},
+			},
+			want: &pb.RetrieveCouponByCodeResponse{
+				CanUse: false,
+			},
+			setup: func(ctx context.Context, fields fields) {
+				fields.couponRepo.On("RetrieveByCode", mock.Anything, mock.Anything, mock.Anything).Return(&entity.Coupon{
+					Type:  pg_util.NullString(pb.CouponType_CouponType_LIMITED.String()),
+					Used:  pg_util.NullInt64(10),
+					Total: pg_util.NullInt64(10),
+					From:  pg_util.NullTime(time.Now().AddDate(0, -1, 0)),
+					To:    pg_util.NullTime(time.Now().AddDate(0, 0, -1)),
+				}, nil)
+			},
+		},
 		{
 			name: "err exceed type limited exceed",
 			fields: fields{
@@ -170,6 +239,8 @@ func Test_couponService_RetrieveCouponByCode_CanUse(t *testing.T) {
 					Type:  pg_util.NullString(pb.CouponType_CouponType_LIMITED.String()),
 					Used:  pg_util.NullInt64(10),
 					Total: pg_util.NullInt64(10),
+					From:  pg_util.NullTime(time.Now().AddDate(0, -1, 0)),
+					To:    pg_util.NullTime(time.Now().AddDate(0, 1, 0)),
 				}, nil)
 			},
 		},
@@ -195,9 +266,11 @@ func Test_couponService_RetrieveCouponByCode_CanUse(t *testing.T) {
 			setup: func(ctx context.Context, fields fields) {
 				fields.couponRepo.On("RetrieveByCode", mock.Anything, mock.Anything, mock.Anything).Return(&entity.Coupon{
 					Type: pg_util.NullString(pb.CouponType_CouponType_LIMITED.String()),
+					From: pg_util.NullTime(time.Now().AddDate(0, -1, 0)),
+					To:   pg_util.NullTime(time.Now().AddDate(0, 1, 0)),
 				}, nil)
 
-				fields.productCouponRepo.On("RetrieveByCouponID", mock.Anything, mock.Anything, mock.Anything).Return(&entity.UserCoupon{
+				fields.userCouponRepo.On("RetrieveByCouponIDUserID", mock.Anything, mock.Anything, mock.Anything).Return(&entity.UserCoupon{
 					Used:  pg_util.NullInt64(10),
 					Total: pg_util.NullInt64(10),
 				}, nil)
@@ -226,6 +299,8 @@ func Test_couponService_RetrieveCouponByCode_CanUse(t *testing.T) {
 					Used:  pg_util.NullInt64(1),
 					Total: pg_util.NullInt64(10),
 					Type:  pg_util.NullString(pb.CouponType_CouponType_PRODUCT.String()),
+					From:  pg_util.NullTime(time.Now().AddDate(0, -1, 0)),
+					To:    pg_util.NullTime(time.Now().AddDate(0, 1, 0)),
 				}, nil)
 				fields.productCouponRepo.On("RetrieveByCouponID", mock.Anything, mock.Anything, mock.Anything).Return(&entity.ProductCoupon{
 					Used:  pg_util.NullInt64(10),

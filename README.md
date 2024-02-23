@@ -340,7 +340,13 @@ I already set up variables for develop environment.So we no need do anything.
   make migrate-all
 ```
 
-3. Simple start 4 services:
+3. Generate protobuf:
+
+```sh
+  make gen-proto
+```
+
+4. Simple start 4 services with dev environment:
 
 ```sh
   make start-user-dev
@@ -349,19 +355,23 @@ I already set up variables for develop environment.So we no need do anything.
   make start-gateway-dev
 ```
 
+# Unit test
+```sh
+  make gen-mock
+```
 
 
-## Functional flows:
-### Forgot password flow:
+# Functional flows:
+## Forgot password flow:
 ![image](./docs/flows/forgot_password.svg)
-### Reset password flow:
+## Reset password flow:
 ![image](./docs/flows/reset_password.svg)
-### Login flow:
+## Login flow:
 ![image](./docs/flows/login.svg)
-### Functional relation of user flow:
+## Functional relation of user flow:
 ![image](./docs/flows/functional_relation.svg)
 
-## Conclusion:
+# Conclusion:
 I was do many things and features, so i don't have many time for done at all. If i have more time what i will do:
 
 - [ ] Build transaction between multi-services (using saga architecture).
