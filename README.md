@@ -337,6 +337,7 @@ This section list any major frameworks/libraries used to bootstrap project.
 
 - Make sure you have Go installed ([download](https://golang.org/dl/)). Version `1.21` or higher is required.
 - Docker (version `20.10.22+`)
+- Make (containing shell commands).
 
 # Getting started
 First of all, we should set up environments:
@@ -378,6 +379,10 @@ I already set up variables for develop environment.So we no need do anything.
   make gen-mock
 ```
 
+start all unit test:
+```sh
+  make test
+```
 
 
 # Conclusion:
