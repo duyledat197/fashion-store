@@ -1,4 +1,4 @@
-# Trintech interview
+# Fashion store
 
 ## Requirements:
 Develop Golang APIs for fashion store (shirt and jeans) has
